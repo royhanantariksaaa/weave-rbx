@@ -1,4 +1,4 @@
-local Signal = require(script.Parent.Parent.Parent.WeaveSignal)
+local Signal = require(game:GetService("ReplicatedStorage").Libraries.Echo)
 local Value = require(script.Parent.Parent.States.Value)
 local Computed = require(script.Parent.Parent.States.Computed)
 local Mixins = require(script.Parent.Parent.States.Mixins)

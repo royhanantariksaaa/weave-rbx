@@ -4,7 +4,7 @@
 local Engine = require(script.Parent.Parent.Core.Engine)
 local Helpers = require(script.Parent.Parent.Core.Helpers)
 local WeaveTypes = require(script.Parent.Parent.Types)
-local Signal = require(script.Parent.Parent.Parent.WeaveSignal)
+local Signal = require(game:GetService("ReplicatedStorage").Libraries.Echo)
 local Mixins = require(script.Parent.Mixins)
 
 local AnimationState = {}

@@ -5,17 +5,19 @@ A UI library for Roblox inspired by SolidJS and Flutter that is somewhat lightwe
 This is the core reactive/UI primitives framework. WeaveKit (the component library
 built on top) and Flite (the game framework) both consume it.
 
-## Runtime sibling requirements
+## Runtime requirements
 
-Weave uses **absolute requires** to sibling modules in `ReplicatedStorage.Libraries`.
-At runtime, the following must be present as siblings of `Weave`:
+Weave uses **absolute requires** to modules in `ReplicatedStorage.Libraries`.
+At runtime, the following must be present:
 
-- `WeaveSignal` — `ReplicatedStorage.Libraries.WeaveSignal` (fast pure-Luau signal)
+- [`Echo`](https://github.com/royhanantariksaaa/echo-rbx) — `ReplicatedStorage.Libraries.Echo` (fast pure-Luau signal)
 - `Symbol` — `ReplicatedStorage.Libraries.Symbol` (unique keys)
 - `Tween` — `ReplicatedStorage.Libraries.Tween` (SoA tween scheduler)
 
-These are leaf single-file utilities and are intentionally **not** vendored here.
-See your consuming project's quickstart below for how to obtain them.
+`Echo` is its own library (see the [echo-rbx](https://github.com/royhanantariksaaa/echo-rbx)
+repo). `Symbol` and `Tween` are leaf single-file utilities and are intentionally
+**not** vendored here. See your consuming project's quickstart below for how to
+obtain them.
 
 ## Consume as a git submodule
 

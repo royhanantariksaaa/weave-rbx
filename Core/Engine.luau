@@ -3,7 +3,7 @@
 -- All state is stored in flat parallel arrays keyed by integer ID.
 -- Public API returns lightweight closures (getter/setter) instead of raw IDs.
 
-local Signal = require(script.Parent.Parent.Parent.WeaveSignal)
+local Signal = require(game:GetService("ReplicatedStorage").Libraries.Echo)
 
 local Engine = {}
 

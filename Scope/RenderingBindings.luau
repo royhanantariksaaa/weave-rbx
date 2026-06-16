@@ -1,4 +1,4 @@
-local Signal = require(script.Parent.Parent.Parent.WeaveSignal)
+local Signal = require(game:GetService("ReplicatedStorage").Libraries.Echo)
 local Reconciler = require(script.Parent.Parent.Core.Reconciler)
 
 local RenderingShowInit          = require(script.Parent.Parent.Rendering.Show)
