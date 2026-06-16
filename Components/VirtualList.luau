@@ -1,6 +1,13 @@
--- VirtualList: Virtualized scrolling component for massive lists.
--- Only renders visible rows based on scroll position and window size.
--- Usage: Weave.Components.VirtualList(scope, { Items = state, ItemHeight = 50, RenderItem = fn })
+--[=[
+	@within Weave.Components
+
+	Virtualized scrolling component for large lists. Only renders the visible
+	rows based on scroll position and window size.
+
+	```lua
+	Weave.Components.VirtualList(scope, { Items = state, ItemHeight = 50, RenderItem = fn })
+	```
+]=]
 
 local Reconciler = require(script.Parent.Parent.Core.Reconciler)
 local Elements = require(script.Parent.Parent.Core.Elements)

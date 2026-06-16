@@ -1,5 +1,16 @@
--- Spring: Physics-based spring animation reactive state.
--- Accepts getter closure as target state.
+--[=[
+	@within Weave
+
+	Physics-based spring animation reactive state. Animates toward a target
+	value (number, Vector2/3, UDim/2, Color3, CFrame) using critically-damped
+	spring physics. The target is provided as a getter closure, so the spring
+	follows other reactive state.
+
+	@param targetAccessor () -> T -- getter for the value to animate toward
+	@param speed number? -- spring stiffness (default 10)
+	@param damping number? -- damping ratio (default 1)
+	@return Types.Spring<T> -- a reactive state whose getter returns the animated value
+]=]
 
 local AnimationState = require(script.Parent.AnimationState)
 local Types = require(script.Parent.Parent.Types)

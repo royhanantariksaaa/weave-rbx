@@ -1,5 +1,8 @@
--- Flex Component
--- Rapid layout builder using UIListLayout.
+--[=[
+	@within Weave.Components
+
+	Rapid layout builder backed by `UIListLayout`.
+]=]
 
 local Reconciler = require(script.Parent.Parent.Core.Reconciler)
 local Elements = require(script.Parent.Parent.Core.Elements)

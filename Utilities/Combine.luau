@@ -1,5 +1,13 @@
--- Combine: Shorthand for Computed over multiple states.
--- Usage: scope.Combine(stateA, stateB, ..., combinerFn) -> Computed
+--[=[
+	@within Weave
+
+	Shorthand for `Computed` over multiple states. Calls `combinerFn` with the
+	current value of each source state whenever any of them changes.
+
+	@param ... state -- two or more source states (or getters)
+	@param combinerFn (...values) -> T -- combines the source values
+	@return () -> T -- getter for the combined result
+]=]
 
 return function(_Scope, _Signal, _Value, _Computed)
 	return function(self, ...)

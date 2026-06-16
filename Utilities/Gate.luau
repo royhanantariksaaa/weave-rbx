@@ -1,5 +1,13 @@
--- Gate: Filters updates from a source state based on a predicate function.
--- Usage: scope.Gate(sourceState, function(newVal, oldVal) return newVal > 5 end)
+--[=[
+	@within Weave
+
+	Filters updates from a source state through a predicate. The derived state
+	only updates when `predicateFn(newVal, oldVal)` returns true.
+
+	@param sourceState -- the source state (or getter)
+	@param predicateFn (newVal, oldVal) -> boolean -- gate condition
+	@return () -> any -- getter for the gated value
+]=]
 
 return function(_Scope, _Signal, _Value)
 	return function(self, sourceState, predicateFn)

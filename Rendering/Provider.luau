@@ -1,5 +1,14 @@
--- Provider: Wraps a subtree to provide a context value.
--- Usage: scope.Provider(context, value, builderFunc) -> WeaveNode
+--[=[
+	@within Weave
+
+	Wraps a subtree to provide a context value (created via
+	`Weave.createContext`) to descendants that consume it.
+
+	@param context -- a context handle from `Weave.createContext`
+	@param value any -- the value to provide
+	@param builderFunc () -> WeaveNode -- the consuming subtree
+	@return WeaveNode
+]=]
 
 local Engine = require(script.Parent.Parent.Core.Engine)
 

@@ -1,5 +1,12 @@
--- MediaQuery: Responsive breakpoint state.
--- Usage: scope.MediaQuery({ mobile = 0, tablet = 480, desktop = 960 }) -> Value<string>
+--[=[
+	@within Weave
+
+	Responsive breakpoint state. Returns a reactive string naming the active
+	breakpoint based on the viewport size.
+
+	@param breakpoints { [string]: number } -- name → minimum width (e.g. `{ mobile = 0, desktop = 960 }`)
+	@return () -> string -- getter for the active breakpoint name
+]=]
 
 local Camera = game:GetService("Workspace").CurrentCamera
 

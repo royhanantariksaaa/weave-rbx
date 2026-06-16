@@ -1,5 +1,11 @@
--- Defer: Run a callback on the next frame, after reactive updates settle.
--- Usage: scope.Defer(fn)
+--[=[
+	@within Weave
+
+	Run a callback on the next frame, after reactive updates settle.
+
+	@param fn () -> () -- the deferred callback
+	@return any
+]=]
 
 local Helpers = require(script.Parent.Parent.Core.Helpers)
 

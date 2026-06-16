@@ -1,6 +1,13 @@
--- History: Undo/redo state wrapper.
--- Usage: local h = scope.History(valueState, { maxDepth = 50 })
--- h.Undo(), h.Redo(), h.CanUndo:Get(), h.CanRedo:Get()
+--[=[
+	@within Weave
+
+	Undo/redo state wrapper. Tracks a history of values for a source state
+	and exposes `Undo`/`Redo` plus reactive `CanUndo`/`CanRedo` flags.
+
+	@param valueState -- the state to track history for
+	@param options { maxDepth: number }? -- cap on retained history entries
+	@return { Undo, Redo, CanUndo, CanRedo } -- history controller
+]=]
 
 local Engine = require(script.Parent.Parent.Core.Engine)
 

@@ -1,5 +1,12 @@
--- Timer: A reactive numeric state that increments every `interval` seconds.
--- Usage: scope.Timer(interval) -> Value<number>
+--[=[
+	@within Weave
+
+	A reactive numeric state that increments every `interval` seconds. Useful
+	for time-driven UI (cooldowns, tickers).
+
+	@param interval number -- seconds between increments
+	@return () -> number -- getter for the tick count
+]=]
 
 local Helpers = require(script.Parent.Parent.Core.Helpers)
 

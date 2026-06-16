@@ -1,4 +1,9 @@
--- Tooltip: A wrapper that portals content to a ScreenGui when hovering a Target instance.
+--[=[
+	@within Weave.Components
+
+	A wrapper that portals content into a `ScreenGui` when hovering a target
+	instance.
+]=]
 
 local Reconciler = require(script.Parent.Parent.Core.Reconciler)
 local Elements = require(script.Parent.Parent.Core.Elements)

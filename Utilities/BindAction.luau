@@ -1,5 +1,13 @@
--- BindAction: Maps a ContextActionService action to a Weave boolean state (true when held).
--- Usage: local isSprinting = scope.BindAction("Sprint", Enum.KeyCode.Space)
+--[=[
+	@within Weave
+
+	Maps a `ContextActionService` action to a Weave boolean state that is
+	`true` while the action is held.
+
+	@param actionName string -- ContextActionService action name
+	@param key Enum.KeyCode -- the input key that triggers the action
+	@return () -> boolean -- getter that is true while held
+]=]
 
 local ContextActionService = game:GetService("ContextActionService")
 

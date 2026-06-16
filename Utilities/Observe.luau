@@ -1,5 +1,13 @@
--- Observe: Like Watch but fires immediately with the current value.
--- Usage: scope.Observe(state, callback) -> connection
+--[=[
+	@within Weave
+
+	Like `Watch`, but fires the callback immediately with the current value,
+	then on every change.
+
+	@param state -- the state (or getter) to observe
+	@param callback (newValue) -> () -- invoked now and on each change
+	@return RBXScriptConnection -- disconnect to stop observing
+]=]
 
 local function resolveStateValue(state)
 	if type(state) == "function" then

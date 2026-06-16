@@ -1,7 +1,13 @@
--- Float: General-purpose floating UI positioning engine.
--- Usage: scope.Float(anchorRef, { placement = "bottom", offset = 8, boundary = screenGui })
--- Returns: { Position = Value<UDim2>, Visible = Value<boolean> }
--- Useful for tooltips, dropdowns, context menus to escape ClipsDescendants.
+--[=[
+	@within Weave
+
+	General-purpose floating UI positioning engine. Useful for tooltips,
+	dropdowns, and context menus that must escape `ClipsDescendants`.
+
+	@param anchorRef Instance -- the element to float relative to
+	@param options { placement: string, offset: number, boundary: Instance }? -- positioning config
+	@return { Position: Value<UDim2>, Visible: Value<boolean> } -- reactive float state
+]=]
 
 local RunService = game:GetService("RunService")
 

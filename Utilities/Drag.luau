@@ -1,6 +1,13 @@
--- Drag: Reactive drag utility.
--- Usage: local drag = scope.Drag(instance, { axis = "XY" })
--- drag.IsDragging:Get(), drag.Position, drag.Delta
+--[=[
+	@within Weave
+
+	Reactive drag utility. Tracks pointer drag on an instance and exposes
+	reactive `IsDragging`, `Position`, and `Delta` states.
+
+	@param instance Instance -- the draggable GuiObject
+	@param options { axis: "X" | "Y" | "XY" }? -- constrain movement to an axis
+	@return { IsDragging, Position, Delta } -- reactive drag state
+]=]
 
 local UserInputService = game:GetService("UserInputService")
 

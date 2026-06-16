@@ -1,4 +1,8 @@
--- TextInput: Standardized text input that handles Weave text binding and common events.
+--[=[
+	@within Weave.Components
+
+	Standardized text input. Handles Weave text binding and common events.
+]=]
 
 local Reconciler = require(script.Parent.Parent.Core.Reconciler)
 local Elements = require(script.Parent.Parent.Core.Elements)

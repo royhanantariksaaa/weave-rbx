@@ -1,5 +1,10 @@
--- _shared: Shared helpers for Rendering primitives.
--- Eliminates boilerplate across Show, Switch, Transition, ErrorBoundary, Portal.
+--[=[
+	@within Weave
+
+	Shared helpers for Rendering primitives. Internal module — eliminates
+	boilerplate across Show, Switch, Transition, ErrorBoundary, and Portal.
+	Not part of the public API.
+]=]
 
 local WeaveTypes = require(script.Parent.Parent.Types)
 local Helpers = require(script.Parent.Parent.Core.Helpers)

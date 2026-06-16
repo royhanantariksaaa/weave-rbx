@@ -1,6 +1,15 @@
--- Stagger: Cascading list entrance animations.
--- Usage: scope.Stagger(itemsState, renderFn, { delay = 0.05 })
--- renderFn receives (childScope, item, index, alphaGetter) where alphaGetter() goes 0 → 1
+--[=[
+	@within Weave
+
+	Cascading list entrance animations. Renders each item with a per-index
+	delay; the render function receives an `alphaGetter` that goes 0 → 1 as
+	the item's stagger progress completes.
+
+	@param itemsState -- reactive list of items
+	@param renderFn (scope, item, index, alphaGetter) -> WeaveNode -- per-item renderer
+	@param options { delay: number }? -- per-item stagger delay (seconds)
+	@return WeaveNode
+]=]
 
 local Shared = require(script.Parent._shared)
 

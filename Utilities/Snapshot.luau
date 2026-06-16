@@ -1,7 +1,13 @@
--- Snapshot: Serializes and restores purely ephemeral UI state without tracking dependencies.
--- Usage: 
--- local snapData = scope.Snapshot({ tab = tabState, search = searchState })
--- scope.Restore({ tab = tabState, search = searchState }, snapData)
+--[=[
+	@within Weave
+
+	Serializes and restores purely ephemeral UI state without tracking
+	dependencies. Use to capture and replay transient UI (active tab, search
+	text) without persisting it.
+
+	@param states { [string]: state } -- map of named states to snapshot
+	@return { [string]: any } -- serialized snapshot data
+]=]
 
 local Engine = require(script.Parent.Parent.Core.Engine)
 

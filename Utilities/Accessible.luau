@@ -1,6 +1,12 @@
--- Accessible: Simplifies UI accessibility, Gamepad navigation routing, and Focus groups.
--- Usage: scope.Accessible(instance, { role = "button", selectionOrder = 1 })
--- scope.FocusGroup(instancesArray)
+--[=[
+	@within Weave
+
+	Simplifies UI accessibility, gamepad navigation routing, and focus groups.
+
+	@param instance Instance -- the GuiObject to make accessible
+	@param options { role: string, selectionOrder: number } -- accessibility metadata
+	@return any
+]=]
 
 local Reconciler = require(script.Parent.Parent.Core.Reconciler)
 

@@ -1,9 +1,14 @@
--- Resource: TanStack-Query inspired data-fetching primitive for non-player data.
--- Usage: local res = scope.Resource(keyState, fetcherFn, { staleTime = 30, retries = 3, refetchInterval = 60 })
--- res.data()     → reactive fetched data
--- res.error()    → reactive error message (nil if success)
--- res.status()   → reactive "idle" | "loading" | "success" | "error"
--- res.refetch()  → manually trigger a refetch
+--[=[
+	@within Weave
+
+	TanStack-Query-inspired data-fetching primitive for non-player data.
+	Exposes reactive `data`, `error`, `status`, and a `refetch` trigger.
+
+	@param keyState -- reactive cache key; changing it refetches
+	@param fetcherFn (key) -> any -- produces the data
+	@param options { staleTime: number, retries: number, refetchInterval: number }? -- fetch policy
+	@return { data, error, status, refetch } -- reactive resource state
+]=]
 -- res.invalidate() → clear cache and refetch
 
 local Engine = require(script.Parent.Parent.Core.Engine)

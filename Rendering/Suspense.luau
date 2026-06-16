@@ -1,5 +1,13 @@
--- Suspense: Halts rendering of Children until an Async resource is resolved.
--- Usage: scope.Suspense({ Resource = asyncState, Fallback = builder, Children = builder }) -> WeaveNode
+--[=[
+	@within Weave
+
+	Halts rendering of `Children` until an `Async` resource resolves,
+	showing `Fallback` while pending. `Resource` may be a single async state
+	or a table of them (all must resolve).
+
+	@param props { Resource: any, Fallback: () -> WeaveNode, Children: () -> WeaveNode }
+	@return WeaveNode
+]=]
 
 local function isSingleAsync(resource)
 	return type(resource) == "table" and resource.Type == "WeaveAsync"

@@ -1,5 +1,12 @@
--- Portal: Out-of-tree rendering into a target Instance.
--- Usage: scope.Portal({ Target = instance, [Children] = ... }) -> WeaveNode
+--[=[
+	@within Weave
+
+	Out-of-tree rendering. Renders children into a target `Instance` outside
+	the normal parent hierarchy (e.g. into `PlayerGui` or a tooltip layer).
+
+	@param props { Target: Instance, [Weave.Children]: ... } -- target and children
+	@return WeaveNode
+]=]
 
 local Shared = require(script.Parent._shared)
 

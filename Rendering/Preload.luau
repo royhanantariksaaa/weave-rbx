@@ -1,4 +1,12 @@
--- Preload: Declaratively loads assets and suspends Children render until complete.
+--[=[
+	@within Weave
+
+	Declaratively preloads assets via `ContentProvider` and suspends the
+	children render until all are ready, showing `Fallback` in the meantime.
+
+	@param props { Assets: { Instance }, Fallback: () -> WeaveNode, Children: () -> WeaveNode }
+	@return WeaveNode
+]=]
 
 local ContentProvider = game:GetService("ContentProvider")
 

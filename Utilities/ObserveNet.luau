@@ -1,8 +1,13 @@
--- ObserveNet: Bridges a Knit service signal or RemoteEvent into a Weave reactive state.
--- Supports both Knit signals and raw RemoteEvents for maximum flexibility.
---
--- Usage (Knit signal):
---   local money = scope.ObserveNet(MoneyService.MoneyChanged, 0)
+--[=[
+	@within Weave
+
+	Bridges a Knit service signal or a raw `RemoteEvent` into a reactive Weave
+	state. Supports both for flexibility.
+
+	@param source -- a Knit signal or RBXScriptSignal
+	@param initialValue any -- value used before the first event arrives
+	@return () -> any -- getter for the latest event payload
+]=]
 --
 -- Usage (RemoteEvent):
 --   local money = scope.ObserveNet(remoteEvent, 0, function(amount) return amount end)

@@ -1,3 +1,34 @@
+--[=[
+	@module Weave
+	@class Weave
+
+	A reactive UI framework for Roblox, inspired by SolidJS and Flutter.
+	The entry point exposes scope creation, state constructors, rendering
+	helpers, and a metatable-backed element namespace.
+
+	Public API surface (all available on the returned `Weave` table):
+
+	- **Scopes & mounting**: `Weave.scope()` / `Weave.mount(parent, builder)`
+	- **State constructors**: `Weave.value`, `Weave.computed`, `Weave.spring`,
+	  `Weave.tween`, `Weave.async`, `Weave.reducer`, `Weave.derived`
+	- **Reactive primitives**: `Weave.effect`, `Weave.peek`, `Weave.destroy`
+	- **Element helpers**: `Weave.children`, `Weave.onEvent`, `Weave.onChange`,
+	  `Weave.bind`, `Weave.ref`
+	- **Styling & context**: `Weave.defineStyle`, `Weave.createContext`
+	- **Memoization & lazy**: `Weave.memo`, `Weave.lazy`
+	- **Built-in components**: `Weave.Components` (Button, Flex, TextInput, ...)
+	- **Element constructors**: accessed via metatable `__index` (e.g. `Weave.Frame`, `Weave.TextLabel`)
+
+	PascalCase aliases (e.g. `Weave.Value`, `Weave.Scope`) exist for backward
+	compatibility and mirror the camelCase primary API.
+
+	```lua
+	local Weave = require(ReplicatedStorage.Libraries.Weave)
+	local scope = Weave.scope()
+	local count, setCount = scope:Value(0)
+	```
+]=]
+
 local Reconciler = require(script.Core.Reconciler)
 local Scope = require(script.Scope)
 local WeaveTypes = require(script.Types)
@@ -7,6 +38,14 @@ local Debug = require(script.Core.Debug)
 local Helpers = require(script.Core.Helpers)
 
 local contextIdCounter = 0
+--[=[
+	Creates a context slot with a default value. Contexts let components
+	share values down the tree without prop drilling. The returned table
+	holds an opaque `_id` and the `DefaultValue`.
+
+	@param defaultValue any -- value seen by consumers that provide none
+	@return { _id: string, DefaultValue: any } -- the context handle
+]=]
 local function CreateContext(defaultValue: any)
     contextIdCounter += 1
     return { _id = "WeaveContext_" .. contextIdCounter, DefaultValue = defaultValue }
@@ -18,6 +57,13 @@ local function shallowEqual(a, b)
     return true
 end
 
+--[=[
+	Wraps a component so it only re-renders when `scope` or a shallow
+	comparison of `props` changes. The previous result is cached.
+
+	@param component (scope, props) -> any -- the component to memoize
+	@return (scope, props) -> any -- the memoized component
+]=]
 local function Memo(component)
     local lastScope, lastProps, lastResult = nil, nil, nil
     return function(scope, props)
@@ -29,6 +75,14 @@ local function Memo(component)
     end
 end
 
+--[=[
+	Returns a lazy reference to a module produced by `factory`. The factory
+	runs at most once, on the first `:Preload()` call. Use for code-splitting
+	heavy optional components.
+
+	@param factory () -> any -- produces the module on first preload
+	@return { Preload: () -> any } -- the lazy handle
+]=]
 local function lazy(factory: () -> any)
     local ref = { _factory = factory, _resolved = nil, _hasPreloaded = false }
     function ref:Preload()
@@ -41,6 +95,22 @@ local function lazy(factory: () -> any)
     return ref
 end
 
+--[=[
+	Mounts a builder's output into `parent`. Creates a root scope, runs the
+	builder inside it, and parents the resulting instance(s).
+
+	Two call forms:
+	  - `Weave.mount(parent, builder)` — builder returns an Instance or list
+	  - `Weave.mount(parent, props, builder)` — wraps the result in a ScreenGui
+	    using `props` (a props table, or a string used as `Name`)
+
+	Returns a cleanup function that destroys the root scope and unmounts.
+
+	@param parent Instance -- the container to mount into
+	@param arg2 any -- builder function, or props (when using the 3-arg form)
+	@param arg3 (() -> any)? -- builder function (only in the 3-arg form)
+	@return () -> () -- cleanup; call to unmount and destroy the scope
+]=]
 local function Mount(parent: Instance, arg2: any, arg3: (() -> any)?)
     local CreateComponent = require(script.Core.CreateComponent)
     
@@ -147,6 +217,11 @@ local Weave = {
     tween = require(script.States.Tween),
     async = require(script.States.Async),
     reducer = require(script.States.Reducer),
+    --[=[
+	    Run `callback` whenever its tracked dependencies change. Tracks via
+	    getter calls made inside the callback (same mechanism as `computed`).
+	    @param callback () -> () -- side-effect body
+    ]=]
     effect = function(callback)
         return Engine.computed(function()
             callback()

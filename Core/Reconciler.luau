@@ -1,3 +1,12 @@
+--[=[
+	@within Weave
+	@module Reconciler
+
+	Instance reconciliation: diffs Weave node definitions against the live
+	instance tree and applies minimal mutations. Hosts the `Children`,
+	`OnEvent`, `OnChange`, `Bind`, and `Ref` sentinels exposed on the public API.
+]=]
+
 local Symbol = require(script.Parent.Parent.Parent.Symbol)
 local Core = script.Parent
 local Engine = require(Core.Engine)

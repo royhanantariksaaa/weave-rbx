@@ -1,3 +1,12 @@
+--[=[
+	@within Weave
+	@module Scope
+
+	Scope constructor and lifecycle. A scope owns reactive state, auto-cleans
+	its connections/instances on `:Destroy()`, and binds the rendering and
+	utility hooks onto each new scope.
+]=]
+
 local Trove = require(script.Parent.Parent.Trove)
 local Reconciler = require(script.Parent.Core.Reconciler)
 local Elements = require(script.Parent.Core.Elements)

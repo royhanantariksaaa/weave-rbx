@@ -1,5 +1,13 @@
--- Watch: Targeted side-effects on state changes (without immediate call).
--- Usage: scope.Watch(state, callback) -> connection
+--[=[
+	@within Weave
+
+	Targeted side-effects on state changes. Like `Observe` but does NOT fire
+	immediately — only on subsequent changes.
+
+	@param state -- the state (or getter) to watch
+	@param callback (newValue) -> () -- invoked on each change
+	@return RBXScriptConnection -- disconnect to stop watching
+]=]
 
 local function resolveStateValue(state)
 	if type(state) == "function" then

@@ -1,5 +1,13 @@
--- Animate: Sequential property animation steps via tween library.
--- Usage: scope.Animate(instance, steps) -> controller
+--[=[
+	@within Weave
+
+	Sequential property animation via the tween library. Plays a list of
+	steps in order on `instance` and returns a controller.
+
+	@param instance Instance -- target to animate
+	@param steps { ... } -- ordered animation steps
+	@return any -- controller for the sequence
+]=]
 
 return function(_Scope, _Signal, TweenLib)
 	return function(_self, instance, steps)

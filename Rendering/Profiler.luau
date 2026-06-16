@@ -1,5 +1,12 @@
--- Profiler: Visual in-game debug overlay for Weave performance metrics.
--- Usage: Automatically mounted when Weave.Debug = "overlay", or manually via scope.Profiler()
+--[=[
+	@within Weave
+
+	Visual in-game debug overlay for Weave performance metrics. Mounted
+	automatically when `Weave.Debug = "overlay"`, or manually via
+	`scope:Profiler()`.
+
+	@return WeaveNode
+]=]
 
 local Players = game:GetService("Players")
 local Debug = require(script.Parent.Parent.Core.Debug)

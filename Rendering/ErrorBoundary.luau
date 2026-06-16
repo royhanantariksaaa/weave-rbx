@@ -1,5 +1,14 @@
--- ErrorBoundary: Wraps component building in pcall to prevent cascading crashes.
--- Usage: scope.ErrorBoundary(builderFunc, fallbackFunc?) -> WeaveNode
+--[=[
+	@within Weave
+
+	Wraps component building in a `pcall` to prevent a crash in one subtree
+	from tearing down the whole tree. If the builder throws, `fallbackFunc`
+	renders instead (if provided).
+
+	@param builderFunc () -> WeaveNode -- the protected subtree
+	@param fallbackFunc (() -> WeaveNode)? -- optional fallback on error
+	@return WeaveNode
+]=]
 
 local Engine = require(script.Parent.Parent.Core.Engine)
 

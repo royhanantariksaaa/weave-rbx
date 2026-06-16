@@ -1,3 +1,11 @@
+--[=[
+	@within Weave
+	@module RenderingBindings
+
+	Binds the rendering primitives (`Show`, `Switch`, `Transition`, etc.) onto
+	a scope so they're available as methods. Internal — consumed by Scope.
+]=]
+
 local Signal = require(game:GetService("ReplicatedStorage").Libraries.Echo)
 local Reconciler = require(script.Parent.Parent.Core.Reconciler)
 

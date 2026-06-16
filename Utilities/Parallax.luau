@@ -1,5 +1,13 @@
--- Parallax: Scrolling utility that shifts layers at different speeds.
--- Usage: scope.Parallax(scrollState, { { instance = bg, speed = 0.2 }, ... })
+--[=[
+	@within Weave
+
+	Scrolling utility that shifts layers at different speeds based on a scroll
+	state, producing a parallax effect.
+
+	@param scrollState -- reactive scroll position
+	@param layers { { instance: Instance, speed: number } } -- one entry per parallax layer
+	@return any
+]=]
 
 local RunService = game:GetService("RunService")
 

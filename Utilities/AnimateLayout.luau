@@ -1,7 +1,13 @@
--- AnimateLayout: FLIP-based layout transition animations.
--- Smoothly animates child GuiObjects when layout order/content changes.
--- Usage: scope.AnimateLayout(container, { Duration = 0.3, EasingStyle = Enum.EasingStyle.Quad })
--- Returns: { Refresh = function() }
+--[=[
+	@within Weave
+
+	FLIP-based layout transition animations. Smoothly animates child
+	GuiObjects when layout order or content changes.
+
+	@param container Instance -- the layout container to observe
+	@param options { Duration: number, EasingStyle: EnumItem }? -- animation config
+	@return { Refresh: () -> () } -- call to re-measure and animate
+]=]
 
 return function(_Scope, _Signal, TweenLib)
 	return function(self, container, options)

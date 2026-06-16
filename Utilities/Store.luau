@@ -1,8 +1,14 @@
--- Store: Redux-like centralized state management for complex client-side UI state.
--- Usage: local store = scope.Store(initialState, { actions = { ... }, middleware = { ... } })
--- store.State  → reactive state (read via use())
--- store.Dispatch("actionName", payload)
--- store.Select(selectorFn) → derived reactive slice
+--[=[
+	@within Weave
+
+	Redux-like centralized state management for complex client-side UI state.
+	Exposes a reactive `State`, a `Dispatch` for actions, and `Select` for
+	derived slices.
+
+	@param initialState any -- the starting state
+	@param options { actions: { [string]: (state, payload) -> state }, middleware: { ... } }? -- reducers and middleware
+	@return { State, Dispatch, Select } -- the store controller
+]=]
 
 local Engine = require(script.Parent.Parent.Core.Engine)
 

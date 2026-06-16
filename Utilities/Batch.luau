@@ -1,7 +1,13 @@
--- Batch: Coalesce multiple state mutations into a single reactive flush.
--- Under WeaveEcs, mutations are implicitly deferred and batched by the Engine,
--- so this utility purely runs the function synchronously for backwards compatibility.
--- Usage: scope.Batch(fn)
+--[=[
+	@within Weave
+
+	Coalesce multiple state mutations into a single reactive flush. Under the
+	current Engine, mutations are implicitly deferred/batched, so this runs
+	`fn` synchronously for backward compatibility.
+
+	@param fn () -> () -- body containing the mutations
+	@return any
+]=]
 
 return function(_Scope, _Signal)
 	return function(_self, fn)

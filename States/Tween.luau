@@ -1,5 +1,14 @@
--- Tween: Animated reactive state driven by TweenInfo interpolation.
--- Accepts getter closure as target state.
+--[=[
+	@within Weave
+
+	Animated reactive state driven by `TweenInfo` interpolation. Animates
+	toward a target value following the given easing. The target is provided
+	as a getter closure, so the tween follows other reactive state.
+
+	@param targetAccessor () -> T -- getter for the value to animate toward
+	@param tweenInfo TweenInfo? -- easing config (defaults to linear if omitted)
+	@return WeaveTypes.Tween<T> -- a reactive state whose getter returns the animated value
+]=]
 
 local AnimationState = require(script.Parent.AnimationState)
 local TweenLib = require(script.Parent.Parent.Parent.Tween)

@@ -1,6 +1,15 @@
--- AnimatePresence: Per-item exit animations for dynamic lists.
--- Usage: scope.AnimatePresence(itemsState, renderFn, { Exit = fn })
--- Like Stagger/ForValues but items aren't destroyed until the Exit fn finishes.
+--[=[
+	@within Weave
+
+	Per-item exit animations for dynamic lists. Like `Stagger`/`ForValues`,
+	but items are not destroyed until their `Exit` function finishes, enabling
+	clean leave animations.
+
+	@param itemsState -- reactive list/table of items
+	@param renderFn (scope, item, ...) -> WeaveNode -- renders each item
+	@param options { Exit: (scope, item, ...) -> () } -- exit animation per item
+	@return WeaveNode
+]=]
 
 local Shared = require(script.Parent._shared)
 local Helpers = require(script.Parent.Parent.Core.Helpers)

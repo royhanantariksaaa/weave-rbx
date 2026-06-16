@@ -1,4 +1,9 @@
--- Button: Standardized text button that manages Hovering and Pressed states, disabling AutoButtonColor.
+--[=[
+	@within Weave.Components
+
+	Standardized text button. Manages Hovering and Pressed states and
+	disables `AutoButtonColor` for full visual control.
+]=]
 
 local Reconciler = require(script.Parent.Parent.Core.Reconciler)
 local Elements = require(script.Parent.Parent.Core.Elements)

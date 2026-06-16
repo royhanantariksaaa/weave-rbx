@@ -1,4 +1,12 @@
--- Form: Returns a state container for managing form inputs.
+--[=[
+	@within Weave
+
+	Returns a state container for managing form inputs, including values and
+	validation errors.
+
+	@param initialValues { [string]: any }? -- starting field values
+	@return any -- form state container with get/set/validate helpers
+]=]
 
 return function(_Scope, _Signal, _Value)
 	return function(self, initialValues)

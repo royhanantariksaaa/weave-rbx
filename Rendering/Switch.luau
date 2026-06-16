@@ -1,5 +1,13 @@
--- Switch: Multi-case conditional rendering.
--- Usage: scope.Switch(state, { [value] = builderFunc, default = builderFunc }) -> WeaveNode
+--[=[
+	@within Weave
+
+	Multi-case conditional rendering. Picks the builder whose key matches the
+	current `state` value, falling back to `cases.default` when no key matches.
+
+	@param state () -> any -- value selecting which case renders
+	@param cases { [any]: () -> WeaveNode, default: () -> WeaveNode } -- case map
+	@return WeaveNode
+]=]
 
 local Shared = require(script.Parent._shared)
 

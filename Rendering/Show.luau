@@ -1,5 +1,13 @@
--- Show: Conditional rendering. Shows/hides children based on a boolean state.
--- Usage: scope.Show(conditionState, builderFunc) -> WeaveNode
+--[=[
+	@within Weave
+
+	Conditional rendering. Renders `builderFunc` when `conditionState` is
+	truthy, renders nothing otherwise. Sugar over `Switch` for the boolean case.
+
+	@param conditionState () -> boolean -- when truthy, children render
+	@param builderFunc () -> WeaveNode -- the conditional subtree
+	@return WeaveNode
+]=]
 
 
 return function(_Scope, _Signal)

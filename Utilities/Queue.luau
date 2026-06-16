@@ -1,9 +1,11 @@
--- Queue: Reactive FIFO queue state for notifications, toasts, and event logs.
--- Usage: local q = scope.Queue({ maxSize = 50 })
--- q.Push(item)     → adds to back
--- q.Pop()          → removes from front
--- q.PeekFront()    → returns front item without removing
--- q.Items          → reactive state of all items (array)
+--[=[
+	@within Weave
+
+	Reactive FIFO queue state for notifications, toasts, and event logs.
+
+	@param options { maxSize: number }? -- cap on retained items
+	@return { Push, Pop, PeekFront, Items } -- queue controller; `Items` is a reactive array
+]=]
 -- q.Count          → reactive state of item count (number)
 
 return function(_Scope, _Signal, _Value, _Computed)

@@ -1,5 +1,15 @@
--- Transition: Animated mount/unmount rendering.
--- Usage: scope.Transition(conditionState, buildFunc, transitionProps) -> WeaveNode
+--[=[
+	@within Weave
+
+	Animated mount/unmount rendering. When `conditionState` is truthy, builds
+	the subtree via `buildFunc`; on flip to falsy, runs the exit transition
+	before unmounting. `transitionProps` configure the enter/exit animation.
+
+	@param conditionState () -> boolean -- gates the subtree
+	@param buildFunc () -> WeaveNode -- the animated subtree
+	@param transitionProps { from: {...}, to: {...}, config: TweenInfo }? -- animation config
+	@return WeaveNode
+]=]
 
 local Shared = require(script.Parent._shared)
 

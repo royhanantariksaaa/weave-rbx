@@ -1,6 +1,15 @@
--- ForCollection: Unified key/value table iteration with key reuse.
--- ForKeys:   scope.ForKeys(sourceState, renderFunc)
--- ForValues: scope.ForValues(sourceState, renderFunc)
+--[=[
+	@within Weave
+
+	Unified key/value table iteration with key reuse. Backs the public
+	`ForKeys` and `ForValues` scope methods, which render one node per entry
+	in a reactive table and reuse nodes by key.
+
+	@param sourceState -- reactive table to iterate
+	@param isArray boolean -- treat the source as an array vs. keyed map
+	@param renderFn (scope, key, value) -> WeaveNode -- per-entry renderer
+	@return WeaveNode
+]=]
 
 local Shared = require(script.Parent._shared)
 

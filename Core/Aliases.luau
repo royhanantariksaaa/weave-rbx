@@ -1,3 +1,11 @@
+--[=[
+	@within Weave
+	@module Aliases
+
+	Short-name → Roblox class mappings used by the element namespace, so
+	`Weave.ListLayout` resolves to `UIListLayout`, and so on.
+]=]
+
 local Aliases = {
 	-- Layouts
 	ListLayout    = "UIListLayout",

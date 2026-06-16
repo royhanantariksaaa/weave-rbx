@@ -1,7 +1,13 @@
--- Gesture: Reactive input recognition for swipes, taps, and long presses.
--- Usage: scope.Gesture(instance, { swipe = true, longPress = 0.5, doubleTap = 0.3 }) -> { SwipeDirection, IsLongPressing, GesturePhase, TapCount }
+--[=[
+	@within Weave
 
--- Usage: scope.Gesture(instance, { swipe = true, longPress = 0.5, doubleTap = 0.3 }) -> { SwipeDirection, IsLongPressing, GesturePhase, TapCount }
+	Reactive input recognition for swipes, taps, and long presses on an
+	instance. Returns reactive states describing the recognized gesture.
+
+	@param instance Instance -- the input target
+	@param options { swipe: boolean, longPress: number, doubleTap: number }? -- which gestures to recognize
+	@return { SwipeDirection, IsLongPressing, GesturePhase, TapCount } -- reactive gesture states
+]=]
 
 return function(_Scope, _Signal)
 	return function(self, instance, options)
