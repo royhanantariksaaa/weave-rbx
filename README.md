@@ -51,4 +51,4 @@ Reference specs live under `src/tests/` and are written for [TestEZ](https://git
 
 ## License
 
-TBD. No license file is included yet; default copyright applies in the meantime.
+[MIT](./LICENSE).
