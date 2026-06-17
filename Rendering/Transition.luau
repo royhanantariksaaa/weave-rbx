@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Transition
 
 	Animated mount/unmount rendering. When `conditionState` is truthy, builds
 	the subtree via `buildFunc`; on flip to falsy, runs the exit transition

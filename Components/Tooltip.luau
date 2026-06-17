@@ -1,5 +1,6 @@
 --[=[
 	@within Weave.Components
+	@module Tooltip
 
 	A wrapper that portals content into a `ScreenGui` when hovering a target
 	instance.

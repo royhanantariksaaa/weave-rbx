@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module ErrorBoundary
 
 	Wraps component building in a `pcall` to prevent a crash in one subtree
 	from tearing down the whole tree. If the builder throws, `fallbackFunc`

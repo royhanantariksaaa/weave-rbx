@@ -85,6 +85,9 @@ end
 ]=]
 local function lazy(factory: () -> any)
     local ref = { _factory = factory, _resolved = nil, _hasPreloaded = false }
+    --[=[
+        Preloads the referenced asset.
+    ]=]
     function ref:Preload()
         if not self._hasPreloaded then
             self._hasPreloaded = true

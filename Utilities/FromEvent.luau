@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module FromEvent
 
 	Bridges an `RBXScriptSignal` into a reactive Weave state. The state holds
 	the latest event payload (mapped through `mapperFn` if provided).

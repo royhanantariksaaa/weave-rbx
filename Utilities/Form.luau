@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Form
 
 	Returns a state container for managing form inputs, including values and
 	validation errors.

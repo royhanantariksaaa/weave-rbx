@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Show
 
 	Conditional rendering. Renders `builderFunc` when `conditionState` is
 	truthy, renders nothing otherwise. Sugar over `Switch` for the boolean case.

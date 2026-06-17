@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module AnimateLayout
 
 	FLIP-based layout transition animations. Smoothly animates child
 	GuiObjects when layout order or content changes.

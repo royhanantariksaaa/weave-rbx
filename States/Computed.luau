@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Computed
 
 	Creates a Computed entity and returns a getter closure. The compute
 	callback receives NO arguments — dependencies are tracked automatically

@@ -1,4 +1,11 @@
 --!nocheck
+--[=[
+	@module Scope
+	@within Weave.Types
+
+	Shared Luau type definitions for Weave APIs.
+]=]
+
 local Base = require(script.Parent.Base)
 local GuiProps = require(script.Parent.GuiProps)
 

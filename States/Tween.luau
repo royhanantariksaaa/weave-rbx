@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Tween
 
 	Animated reactive state driven by `TweenInfo` interpolation. Animates
 	toward a target value following the given easing. The target is provided
@@ -30,6 +31,10 @@ function Tween.new<T>(targetAccessor, tweenInfo: TweenInfo?): WeaveTypes.Tween<T
 	return self :: any
 end
 
+--[=[
+	Writes a new value.
+	@param val Value passed to the Set operation.
+]=]
 function Tween:Set(val: any)
 	if self._value ~= val then
 		self._value = val
@@ -38,6 +43,9 @@ function Tween:Set(val: any)
 	end
 end
 
+--[=[
+	Documents the _doAwake API.
+]=]
 function Tween:_doAwake()
 	if self._tweenController then
 		self._tweenController.Cancel()
@@ -47,6 +55,9 @@ function Tween:_doAwake()
 	self._tweenController = TweenLib.Tween(self, self._tweenInfo, { _value = targetValue })
 end
 
+--[=[
+	Documents the _onBeforeDestroy API.
+]=]
 function Tween:_onBeforeDestroy()
 	if self._tweenController then
 		self._tweenController.Cancel()

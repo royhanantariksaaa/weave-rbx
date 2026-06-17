@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Batch
 
 	Coalesce multiple state mutations into a single reactive flush. Under the
 	current Engine, mutations are implicitly deferred/batched, so this runs

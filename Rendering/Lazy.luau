@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Lazy
 
 	Async component loading. Suspends and shows `fallback` until the lazy
 	reference (from `Weave.lazy`) has preloaded, then renders the resolved

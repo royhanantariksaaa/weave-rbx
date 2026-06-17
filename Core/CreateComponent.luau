@@ -1,3 +1,10 @@
+--[=[
+	@module CreateComponent
+	@within Weave.Core
+
+	Core runtime helper used by Weave rendering and reactivity internals.
+]=]
+
 -- CreateComponent: Shared factory for creating Weave element constructors.
 -- Used by Elements.luau (dynamic, lazy-cached) and Scope bindings.
 

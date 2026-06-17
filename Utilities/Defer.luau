@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Defer
 
 	Run a callback on the next frame, after reactive updates settle.
 

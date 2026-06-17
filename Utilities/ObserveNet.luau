@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module ObserveNet
 
 	Bridges a Knit service signal or a raw `RemoteEvent` into a reactive Weave
 	state. Supports both for flexibility.

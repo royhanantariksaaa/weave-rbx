@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Stagger
 
 	Cascading list entrance animations. Renders each item with a per-index
 	delay; the render function receives an `alphaGetter` that goes 0 → 1 as

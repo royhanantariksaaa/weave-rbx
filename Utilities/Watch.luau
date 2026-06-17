@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Watch
 
 	Targeted side-effects on state changes. Like `Observe` but does NOT fire
 	immediately — only on subsequent changes.

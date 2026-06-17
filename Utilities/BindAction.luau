@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module BindAction
 
 	Maps a `ContextActionService` action to a Weave boolean state that is
 	`true` while the action is held.

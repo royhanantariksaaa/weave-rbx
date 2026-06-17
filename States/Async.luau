@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Async
 
 	Creates an Async entity and returns a getter closure. The getter yields
 	to the async function's result; use with `Suspense` to render fallback

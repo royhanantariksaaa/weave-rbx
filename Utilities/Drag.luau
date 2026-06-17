@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Drag
 
 	Reactive drag utility. Tracks pointer drag on an instance and exposes
 	reactive `IsDragging`, `Position`, and `Delta` states.

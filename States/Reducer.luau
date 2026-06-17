@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Reducer
 
 	Creates a Reducer entity (Redux-style) and returns a `(getter, dispatch)`
 	pair. Calling `dispatch(action)` runs `reducerFn(currentState, action)`

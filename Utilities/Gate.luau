@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Gate
 
 	Filters updates from a source state through a predicate. The derived state
 	only updates when `predicateFn(newVal, oldVal)` returns true.

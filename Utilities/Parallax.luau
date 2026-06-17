@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Parallax
 
 	Scrolling utility that shifts layers at different speeds based on a scroll
 	state, producing a parallax effect.

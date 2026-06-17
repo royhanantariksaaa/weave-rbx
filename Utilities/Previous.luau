@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Previous
 
 	A state that always holds the *previous* value of another state. On the
 	source's first read the previous value is `nil`.

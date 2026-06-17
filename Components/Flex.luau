@@ -1,5 +1,6 @@
 --[=[
 	@within Weave.Components
+	@module Flex
 
 	Rapid layout builder backed by `UIListLayout`.
 ]=]

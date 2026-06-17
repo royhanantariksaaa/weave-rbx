@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Float
 
 	General-purpose floating UI positioning engine. Useful for tooltips,
 	dropdowns, and context menus that must escape `ClipsDescendants`.

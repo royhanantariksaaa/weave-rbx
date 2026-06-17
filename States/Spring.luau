@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Spring
 
 	Physics-based spring animation reactive state. Animates toward a target
 	value (number, Vector2/3, UDim/2, Color3, CFrame) using critically-damped
@@ -149,10 +150,16 @@ function Spring.new<T>(targetAccessor, speed: number?, damping: number?): Types.
 	return self :: any
 end
 
+--[=[
+	Handles the _onTargetChanged operation for Spring.
+]=]
 function Spring:_onTargetChanged()
 	decomposeInto(Engine.Values[self._targetStateId], self._targetChannels)
 end
 
+--[=[
+	Documents the _doAwake API.
+]=]
 function Spring:_doAwake()
 	if self._isAwake then return end
 	local target = Engine.Values[self._targetStateId]
@@ -179,15 +186,26 @@ function Spring:_doAwake()
 	end
 end
 
+--[=[
+	Handles the _onBeforeDestroy operation for Spring.
+]=]
 function Spring:_onBeforeDestroy()
 	if self._isAwake then self._isAwake = false end
 end
 
+--[=[
+	Documents the SetSpeed API.
+	@param speed Value passed to this API.
+]=]
 function Spring:SetSpeed(speed: number)
 	self._speed = speed
 	if not self._isAwake then self:Awake() end
 end
 
+--[=[
+	Documents the SetDamping API.
+	@param damping Value passed to this API.
+]=]
 function Spring:SetDamping(damping: number)
 	self._damping = damping
 	if not self._isAwake then self:Awake() end

@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module AnimatePresence
 
 	Per-item exit animations for dynamic lists. Like `Stagger`/`ForValues`,
 	but items are not destroyed until their `Exit` function finishes, enabling

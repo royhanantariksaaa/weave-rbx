@@ -1,3 +1,10 @@
+--[=[
+	@module Derived
+	@within Weave.States
+
+	State primitive used by Weave reactive data flows.
+]=]
+
 -- Derived: Creates a Derived entity (settable computed) → returns (getter, setter).
 local Engine = require(script.Parent.Parent.Core.Engine)
 

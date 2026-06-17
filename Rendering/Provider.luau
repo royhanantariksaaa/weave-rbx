@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Provider
 
 	Wraps a subtree to provide a context value (created via
 	`Weave.createContext`) to descendants that consume it.

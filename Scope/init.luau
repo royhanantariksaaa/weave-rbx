@@ -41,6 +41,11 @@ local function unwrapState(value: any)
 	return value
 end
 
+--[=[
+	Creates a new instance of the module object.
+	@param parentScope Parent scope object.
+	@return any
+]=]
 function Scope.new(parentScope: any?)
 	local self = {
 		_trove = Trove.new(),
@@ -82,38 +87,71 @@ function Scope.new(parentScope: any?)
 			Type = stateType,
 		}
 
+		--[=[
+			Reads the current value.
+			@return any
+		]=]
 		function state:Get()
 			return getter()
 		end
 
+		--[=[
+			Reads without dependency tracking.
+			@return any
+		]=]
 		function state:Peek()
 			return id and Engine.peek(id) or getter()
 		end
 
+		--[=[
+			Writes a new value.
+			@param value Value used by this API.
+		]=]
 		function state:Set(value: any)
 			if setter then
 				setter(value)
 			end
 		end
 
+		--[=[
+			Updates the current value from a callback.
+			@param updater Callback that receives the current value.
+		]=]
 		function state:Update(updater: (any) -> any)
 			if setter then
 				setter(updater(getter()))
 			end
 		end
 
+		--[=[
+			Creates derived mapped state.
+			@param transformer Value passed to this API.
+			@return any
+		]=]
 		function state:Map(transformer: (any) -> any)
 			return wrapState(Mixins.Map(getter, transformer), nil, "Computed")
 		end
 
+		--[=[
+			Handles the Throttle operation for state.
+			@param seconds Value passed to the Throttle operation.
+		]=]
 		function state:Throttle(seconds: number)
 			return wrapState(Mixins.Throttle(getter, seconds), nil, "Computed")
 		end
 
+		--[=[
+			Debounces state changes.
+			@param seconds Debounce duration in seconds.
+			@return any
+		]=]
 		function state:Debounce(seconds: number)
 			return wrapState(Mixins.Debounce(getter, seconds), nil, "Computed")
 		end
 
+		--[=[
+			Destroys the object and releases resources.
+		]=]
 		function state:Destroy()
 			if id then
 				Engine.destroy(id)
@@ -172,6 +210,10 @@ function Scope.new(parentScope: any?)
 	self.spring = createObjectFactory(Spring)
 	self.tween = createObjectFactory(Tween)
 
+	--[=[
+		Handles the effect operation for self.
+		@param callback Callback invoked by this API.
+	]=]
 	self.effect = function(callback)
 		return self.computed(function(use)
 			callback(use)
@@ -182,6 +224,9 @@ function Scope.new(parentScope: any?)
 	self.createSignal = self.value
 	self.createMemo = self.computed
 	self.createEffect = self.effect
+	--[=[
+		Creates a fragment from child nodes.
+	]=]
 	self.fragment = function(...)
 		local children = stripScopeArg(...)
 		if children == nil then
@@ -192,6 +237,10 @@ function Scope.new(parentScope: any?)
 		end
 		return { children }
 	end
+	--[=[
+		Registers a scope cleanup callback.
+		@param callback Callback invoked by this API.
+	]=]
 	self.onCleanup = function(callback)
 		self._trove:Add(callback)
 	end
@@ -220,6 +269,9 @@ function Scope.new(parentScope: any?)
 		end
 	end
 
+	--[=[
+		Handles the Ref operation for self.
+	]=]
 	self.Ref = function()
 		return {
 			_value = nil,
@@ -232,6 +284,9 @@ function Scope.new(parentScope: any?)
 		}
 	end
 
+	--[=[
+		Applies properties and children to an existing Instance.
+	]=]
 	self.Hydrate = function(...)
 		local instance, props = stripScopeArg(...)
 		if typeof(instance) ~= "Instance" then
@@ -242,11 +297,17 @@ function Scope.new(parentScope: any?)
 		return instance
 	end
 
+	--[=[
+		Handles the RegisterComponent operation for self.
+	]=]
 	self.RegisterComponent = function(...)
 		local name, componentFunc = stripScopeArg(...)
 		self._components[name] = componentFunc
 	end
 
+	--[=[
+		Provides scoped context values.
+	]=]
 	self.Provide = function(...)
 		local key, value = stripScopeArg(...)
 		if type(key) == "table" then
@@ -258,11 +319,17 @@ function Scope.new(parentScope: any?)
 		end
 	end
 
+	--[=[
+		Consumes a scoped context value.
+	]=]
 	self.Consume = function(...)
 		local key = stripScopeArg(...)
 		return self._context[key]
 	end
 
+	--[=[
+		Reads a scoped context value.
+	]=]
 	self.UseContext = function(...)
 		local context = stripScopeArg(...)
 		local value = self.Consume(context._id)
@@ -272,6 +339,9 @@ function Scope.new(parentScope: any?)
 		return value
 	end
 
+	--[=[
+		Handles the OnMount operation for self.
+	]=]
 	self.OnMount = function(...)
 		local callback = stripScopeArg(...)
 		local mounted = true
@@ -285,11 +355,17 @@ function Scope.new(parentScope: any?)
 		end)
 	end
 
+	--[=[
+		Registers cleanup for scope destruction.
+	]=]
 	self.OnDestroy = function(...)
 		local callback = stripScopeArg(...)
 		self._trove:Add(callback)
 	end
 
+	--[=[
+		Destroys the object and releases resources.
+	]=]
 	self.Destroy = function(...)
 		self._trove:Destroy()
 	end

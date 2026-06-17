@@ -1,3 +1,10 @@
+--[=[
+	@module AnimationState
+	@within Weave.States
+
+	State primitive used by Weave reactive data flows.
+]=]
+
 -- AnimationState: Base class for animation-driven reactive states (Spring, Tween).
 -- Accepts getter closure as target state. Resolves to entity ID via Engine.resolveId.
 
@@ -20,26 +27,51 @@ local function wrapComputedAccessor(accessor)
 		Type = "Computed",
 	}
 
+	--[=[
+		Reads the current value.
+		@return any
+	]=]
 	function state:Get()
 		return accessor()
 	end
 
+	--[=[
+		Reads without dependency tracking.
+		@return any
+	]=]
 	function state:Peek()
 		return id and Engine.peek(id) or accessor()
 	end
 
+	--[=[
+		Creates derived mapped state.
+		@param transformer Value passed to this API.
+		@return any
+	]=]
 	function state:Map(transformer: (any) -> any)
 		return wrapComputedAccessor(Mixins.Map(accessor, transformer))
 	end
 
+	--[=[
+		Documents the Throttle API.
+		@param seconds Debounce duration in seconds.
+	]=]
 	function state:Throttle(seconds: number)
 		return wrapComputedAccessor(Mixins.Throttle(accessor, seconds))
 	end
 
+	--[=[
+		Debounces state changes.
+		@param seconds Debounce duration in seconds.
+		@return any
+	]=]
 	function state:Debounce(seconds: number)
 		return wrapComputedAccessor(Mixins.Debounce(accessor, seconds))
 	end
 
+	--[=[
+		Destroys the object and releases resources.
+	]=]
 	function state:Destroy()
 		if id then
 			Engine.destroy(id)
@@ -53,6 +85,10 @@ local function wrapComputedAccessor(accessor)
 	})
 end
 
+--[=[
+	Handles the _init operation for AnimationState.
+	@param targetAccessor Value passed to the _init operation.
+]=]
 function AnimationState._init(self, targetAccessor)
 	-- Resolve getter closure → entity ID
 	local targetId = Engine.resolveId(targetAccessor)
@@ -75,8 +111,14 @@ function AnimationState._init(self, targetAccessor)
 	end
 end
 
+--[=[
+	Handles the _onTargetChanged operation for AnimationState.
+]=]
 function AnimationState:_onTargetChanged() end
 
+--[=[
+	Documents the Awake API.
+]=]
 function AnimationState:Awake()
 	local targetValue = Engine.Values[self._targetStateId]
 	local valueType = typeof(targetValue)
@@ -89,8 +131,14 @@ function AnimationState:Awake()
 	self:_doAwake()
 end
 
+--[=[
+	Documents the _doAwake API.
+]=]
 function AnimationState:_doAwake() end
 
+--[=[
+	Destroys the object and releases resources.
+]=]
 function AnimationState:Destroy()
 	self:_onBeforeDestroy()
 	if self._targetListener then
@@ -103,26 +151,51 @@ function AnimationState:Destroy()
 	Engine.StateTypes[self._id] = nil
 end
 
+--[=[
+	Reads the current value.
+	@return any
+]=]
 function AnimationState:Get()
 	return self._value
 end
 
+--[=[
+	Reads without dependency tracking.
+	@return any
+]=]
 function AnimationState:Peek()
 	return self._value
 end
 
+--[=[
+	Creates derived mapped state.
+	@param transformer Value passed to this API.
+	@return any
+]=]
 function AnimationState:Map(transformer: (any) -> any)
 	return wrapComputedAccessor(Mixins.Map(self, transformer))
 end
 
+--[=[
+	Documents the Throttle API.
+	@param seconds Debounce duration in seconds.
+]=]
 function AnimationState:Throttle(seconds: number)
 	return wrapComputedAccessor(Mixins.Throttle(self, seconds))
 end
 
+--[=[
+	Debounces state changes.
+	@param seconds Debounce duration in seconds.
+	@return any
+]=]
 function AnimationState:Debounce(seconds: number)
 	return wrapComputedAccessor(Mixins.Debounce(self, seconds))
 end
 
+--[=[
+	Documents the _onBeforeDestroy API.
+]=]
 function AnimationState:_onBeforeDestroy() end
 
 return AnimationState

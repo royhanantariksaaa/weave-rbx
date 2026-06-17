@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Animate
 
 	Sequential property animation via the tween library. Plays a list of
 	steps in order on `instance` and returns a controller.

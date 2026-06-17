@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Combine
 
 	Shorthand for `Computed` over multiple states. Calls `combinerFn` with the
 	current value of each source state whenever any of them changes.

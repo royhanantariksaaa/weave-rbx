@@ -1,3 +1,10 @@
+--[=[
+	@module Base
+	@within Weave.Types
+
+	Shared Luau type definitions for Weave APIs.
+]=]
+
 type UniqueId = string
 type ContentId = string
 type SecurityCapabilities = any

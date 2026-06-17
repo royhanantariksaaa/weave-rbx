@@ -1,3 +1,10 @@
+--[=[
+	@module Helpers
+	@within Weave.Core
+
+	Core runtime helper used by Weave rendering and reactivity internals.
+]=]
+
 -- Helpers: Shared low-level helpers used across Rendering and States.
 -- Centralises RunService connection logic and type tables.
 
@@ -29,6 +36,10 @@ local function onUpdate(dt)
 end
 
 -- Adds a callback to the unified RunService loop.
+--[=[
+	Registers a callback for per-frame updates.
+	@param callback Callback invoked by this API.
+]=]
 function Helpers.StartUpdating(callback)
 	if not table.find(updateCallbacks, callback) then
 		updateCallbacksCount += 1
@@ -41,6 +52,10 @@ end
 
 -- Removes a callback from the unified RunService loop.
 -- If no callbacks remain, the loop stops on the next tick to save resources.
+--[=[
+	Stops a per-frame update callback.
+	@param callback Callback invoked by this API.
+]=]
 function Helpers.StopUpdating(callback)
 	local index = table.find(updateCallbacks, callback)
 	if index then
@@ -58,11 +73,21 @@ end
 
 -- Schedules a callback to run once on the next frame.
 -- Centralises the client/server frame event selection.
+--[=[
+	Schedules a callback to run once on the next update.
+	@param callback Callback invoked by this API.
+]=]
 function Helpers.ScheduleOnce(callback)
 	frameEvent:Once(callback)
 end
 
 -- Omits specified keys from a dictionary and returns a new dictionary.
+--[=[
+	Copies a dictionary without selected keys.
+	@param dict Value passed to this API.
+	@param keysToOmit Value passed to this API.
+	@return any
+]=]
 function Helpers.Omit(dict, keysToOmit)
 	local result = {}
 	for k, v in pairs(dict) do
@@ -74,6 +99,11 @@ function Helpers.Omit(dict, keysToOmit)
 end
 
 -- Merges properties from source dictionaries into the target dictionary.
+--[=[
+	Assigns fields into a target table.
+	@param target Value passed to this API.
+	@return any
+]=]
 function Helpers.Assign(target, ...)
 	for i = 1, select("#", ...) do
 		local source = select(i, ...)
@@ -87,6 +117,10 @@ function Helpers.Assign(target, ...)
 end
 
 -- Calls :Destroy() on all items in a table (array or dictionary).
+--[=[
+	Destroys each Instance or cleanup object in a list.
+	@param instances Instances or cleanup objects.
+]=]
 function Helpers.DestroyAll(instances)
 	for _, inst in pairs(instances) do
 		inst:Destroy()
@@ -96,6 +130,11 @@ end
 -- Creates a managed swap-remove pool with automatic StartUpdating/StopUpdating lifecycle.
 -- updateFn(list, count, dt) is called each frame while pool is non-empty.
 -- Returns: { Add(item), Remove(index), list, count }
+--[=[
+	Creates an update pool.
+	@param updateFn Value passed to this API.
+	@return any
+]=]
 function Helpers.CreatePool(updateFn)
 	local pool = {
 		list = {},
@@ -104,6 +143,10 @@ function Helpers.CreatePool(updateFn)
 		_wrappedUpdate = nil,
 	}
 
+	--[=[
+		Runs the pool update callback.
+		@param dt Delta time.
+	]=]
 	pool._wrappedUpdate = function(dt)
 		updateFn(pool, dt)
 		if pool.count == 0 and pool._isRunning then
@@ -112,6 +155,10 @@ function Helpers.CreatePool(updateFn)
 		end
 	end
 
+	--[=[
+		Adds an item to a pool.
+		@param item Pool item.
+	]=]
 	function pool:Add(item)
 		self.count += 1
 		self.list[self.count] = item
@@ -122,6 +169,10 @@ function Helpers.CreatePool(updateFn)
 		return self.count  -- return index
 	end
 
+	--[=[
+		Removes an item by swapping with the final item.
+		@param index Pool index.
+	]=]
 	function pool:SwapRemove(index)
 		local last = self.count
 		local swapped = self.list[last]
@@ -131,6 +182,11 @@ function Helpers.CreatePool(updateFn)
 		return swapped  -- return the item that was swapped in (for index updates)
 	end
 	
+	--[=[
+		Removes an item from the pool.
+		@param item Pool item.
+		@param indexKey Optional field storing the pool index.
+	]=]
 	function pool:RemoveItem(item, indexKey)
 		local index = item[indexKey]
 		if not index then return end
@@ -145,11 +201,23 @@ function Helpers.CreatePool(updateFn)
 end
 
 -- Creates a Color3 from RGB values (0-1 range)
+--[=[
+	Creates a Color3 from RGB values.
+	@param r Red channel value.
+	@param g Green channel value.
+	@param b Blue channel value.
+	@return Color3
+]=]
 function Helpers.Color3(r, g, b)
 	return Color3.new(r, g, b)
 end
 
 -- Creates a NumberSequence from an array of {time, value, envelope} keypoints
+--[=[
+	Creates a NumberSequence.
+	@param keypoints Sequence keypoints.
+	@return NumberSequence
+]=]
 function Helpers.NumberSequence(keypoints)
 	local sequenceKeypoints = {}
 	for _, kp in ipairs(keypoints) do
@@ -159,6 +227,11 @@ function Helpers.NumberSequence(keypoints)
 end
 
 -- Creates a ColorSequence from an array of {time, color: {r, g, b}} keypoints
+--[=[
+	Creates a ColorSequence.
+	@param keypoints Sequence keypoints.
+	@return ColorSequence
+]=]
 function Helpers.ColorSequence(keypoints)
 	local sequenceKeypoints = {}
 	for _, kp in ipairs(keypoints) do

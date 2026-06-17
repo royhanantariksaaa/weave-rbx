@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Switch
 
 	Multi-case conditional rendering. Picks the builder whose key matches the
 	current `state` value, falling back to `cases.default` when no key matches.

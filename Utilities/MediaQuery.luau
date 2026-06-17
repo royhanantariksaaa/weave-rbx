@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module MediaQuery
 
 	Responsive breakpoint state. Returns a reactive string naming the active
 	breakpoint based on the viewport size.

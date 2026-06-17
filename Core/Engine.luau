@@ -1,4 +1,11 @@
 --!strict
+--[=[
+	@module Engine
+	@within Weave.Core
+
+	Core runtime helper used by Weave rendering and reactivity internals.
+]=]
+
 -- Engine: Pure Data-Oriented State Engine with Closure Accessor API
 -- All state is stored in flat parallel arrays keyed by integer ID.
 -- Public API returns lightweight closures (getter/setter) instead of raw IDs.
@@ -11,6 +18,10 @@ local Engine = {}
 local nextStateId = 1
 local freeIds = {}
 
+--[=[
+	Allocates a new internal state id.
+	@return number
+]=]
 function Engine.newState(): number
     local id
     local nFree = #freeIds
@@ -48,6 +59,11 @@ Engine.Signals      = {} :: { [number]: any }
 Engine.AccessorToId = setmetatable({}, { __mode = "k" }) :: { [any]: number }
 
 -- Resolve any accessor (closure, integer, or animation object) to an entity ID
+--[=[
+	Resolves a state accessor or raw id to its internal id.
+	@param accessor State accessor.
+	@return number?
+]=]
 function Engine.resolveId(accessor: any): number?
     if type(accessor) == "number" then
         return accessor
@@ -62,6 +78,11 @@ function Engine.resolveId(accessor: any): number?
 end
 
 -- Create (getter, setter) closures for a state entity
+--[=[
+	Creates read and write accessors for state.
+	@param id Internal state id.
+	@return (() -> any, (any) -> ())
+]=]
 function Engine.createAccessor(id: number): ((() -> any), (any) -> ())
     local getter = function()
         return Engine.get(id)
@@ -74,6 +95,11 @@ function Engine.createAccessor(id: number): ((() -> any), (any) -> ())
 end
 
 -- Create getter-only closure for read-only states (Computed, Async)
+--[=[
+	Creates a read-only accessor for a state id.
+	@param id Internal state id.
+	@return () -> any
+]=]
 function Engine.createReadAccessor(id: number): () -> any
     local getter = function()
         return Engine.get(id)
@@ -86,11 +112,18 @@ end
 local activeObserverIds = {}
 local observerStackSize = 0
 
+--[=[
+	Pushes an active observer.
+	@param computedId Computed state id.
+]=]
 function Engine.pushObserver(computedId: number)
     observerStackSize += 1
     activeObserverIds[observerStackSize] = computedId
 end
 
+--[=[
+	Pops the active observer.
+]=]
 function Engine.popObserver()
     activeObserverIds[observerStackSize] = nil
     observerStackSize -= 1
@@ -114,16 +147,27 @@ end
 local activeScopes = {}
 local scopeStackSize = 0
 
+--[=[
+	Pushes a scope as the active owner for newly-created resources.
+	@param scope Scope object.
+]=]
 function Engine.pushScope(scope: any)
     scopeStackSize += 1
     activeScopes[scopeStackSize] = scope
 end
 
+--[=[
+	Pops the active scope.
+]=]
 function Engine.popScope()
     activeScopes[scopeStackSize] = nil
     scopeStackSize -= 1
 end
 
+--[=[
+	Returns the active scope.
+	@return any?
+]=]
 function Engine.getCurrentScope(): any?
     if scopeStackSize > 0 then
         return activeScopes[scopeStackSize]
@@ -133,6 +177,11 @@ end
 
 -- ━━ 5. Core Read/Write Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+--[=[
+	Reads the current value.
+	@param id Internal state id.
+	@return any
+]=]
 function Engine.get(id: number): any
     if Engine.Computeds[id] then
         local stateType = Engine.StateTypes[id]
@@ -146,6 +195,11 @@ function Engine.get(id: number): any
     return Engine.Values[id]
 end
 
+--[=[
+	Reads the current value without dependency tracking.
+	@param accessorOrId State accessor or internal id.
+	@return any
+]=]
 function Engine.peek(accessorOrId: any): any
     local id = Engine.resolveId(accessorOrId)
     if id then
@@ -154,6 +208,11 @@ function Engine.peek(accessorOrId: any): any
     return nil
 end
 
+--[=[
+	Writes a new value.
+	@param id Internal state id.
+	@param newValue Value to write.
+]=]
 function Engine.set(id: number, newValue: any)
     local validator = Engine.Validators[id]
     if validator then
@@ -171,12 +230,23 @@ function Engine.set(id: number, newValue: any)
     end
 end
 
+--[=[
+	Updates the current value from a callback.
+	@param id Internal state id.
+	@param updater Callback that receives the current value.
+]=]
 function Engine.update(id: number, updater: (any) -> any)
     Engine.set(id, updater(Engine.Values[id]))
 end
 
 -- ━━ 6. State Constructors ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+--[=[
+	Creates a mutable state value.
+	@param initialValue Value passed to this API.
+	@param options Value passed to this API.
+	@return (() -> any, (any) -> ())
+]=]
 function Engine.value(initialValue: any, options: { validate: ((any) -> any)? }?): ((() -> any), (any) -> ())
     local id = Engine.newState()
     local validator = options and options.validate or nil
@@ -190,6 +260,12 @@ function Engine.value(initialValue: any, options: { validate: ((any) -> any)? }?
     return Engine.createAccessor(id)
 end
 
+--[=[
+	Creates a computed state value.
+	@param callback Callback invoked by this API.
+	@param options Value passed to this API.
+	@return () -> any
+]=]
 function Engine.computed(callback: () -> any, options: { equals: ((any, any) -> boolean)? }?): () -> any
     local id = Engine.newState()
     Engine.Computeds[id] = callback
@@ -202,6 +278,12 @@ function Engine.computed(callback: () -> any, options: { equals: ((any, any) -> 
     return Engine.createReadAccessor(id)
 end
 
+--[=[
+	Creates a derived value with an exposed setter.
+	@param callback Callback invoked by this API.
+	@param options Optional configuration table.
+	@return (() -> any, (any) -> ())
+]=]
 function Engine.derived(callback: () -> any, options: { equals: ((any, any) -> boolean)? }?): ((() -> any), (any) -> ())
     local id = Engine.newState()
     Engine.Computeds[id] = callback
@@ -228,6 +310,12 @@ function Engine.derived(callback: () -> any, options: { equals: ((any, any) -> b
     return getter, setter
 end
 
+--[=[
+	Creates reducer-backed state and a dispatch function.
+	@param reducerFn Value passed to the reducer operation.
+	@param initialState Value passed to the reducer operation.
+	@return (() -> any, (any) -> ())
+]=]
 function Engine.reducer(reducerFn: (any, any) -> any, initialState: any): ((() -> any), (any) -> ())
     local id = Engine.newState()
     Engine.Values[id] = initialState
@@ -249,6 +337,11 @@ function Engine.reducer(reducerFn: (any, any) -> any, initialState: any): ((() -
     return getter, dispatch
 end
 
+--[=[
+	Creates reactive state from an asynchronous producer.
+	@param asyncFn Value passed to the async operation.
+	@return () -> any
+]=]
 function Engine.async(asyncFn: () -> any): () -> any
     local id = Engine.newState()
     Engine.Values[id] = { Status = "Pending", Value = nil, Error = nil }
@@ -273,6 +366,10 @@ end
 
 -- ━━ 7. Computed Flush ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+--[=[
+	Handles the _flushComputed operation for Engine.
+	@param id Internal state id.
+]=]
 function Engine._flushComputed(id: number)
     if Engine.StateTypes[id] == "Derived" and Engine.Overrides[id] and Engine.Initialized[id] then
         Engine.Pending[id] = false
@@ -316,6 +413,9 @@ end
 
 -- ━━ 8. Reactive Flush Loop ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+--[=[
+	Flushes pending computed updates.
+]=]
 function Engine.flush()
     local function evaluateDependentComputeds(id: number)
         local dependents = Engine.Dependencies[id]
@@ -362,6 +462,10 @@ end
 
 -- ━━ 9. Cleanup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+--[=[
+	Destroys the object and releases resources.
+	@param accessorOrId State accessor or internal id.
+]=]
 function Engine.destroy(accessorOrId: any)
     local id = Engine.resolveId(accessorOrId)
     if not id then return end
@@ -400,6 +504,11 @@ function Engine.destroy(accessorOrId: any)
     table.insert(freeIds, id)
 end
 
+--[=[
+	Returns whether a value is a Weave state accessor.
+	@param value Value passed to the isState operation.
+	@return boolean
+]=]
 function Engine.isState(value: any): boolean
     local id = Engine.resolveId(value)
     return id ~= nil and Engine.StateTypes[id] ~= nil

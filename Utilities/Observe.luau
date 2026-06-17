@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Observe
 
 	Like `Watch`, but fires the callback immediately with the current value,
 	then on every change.

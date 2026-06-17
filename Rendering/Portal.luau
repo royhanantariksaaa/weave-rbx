@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Portal
 
 	Out-of-tree rendering. Renders children into a target `Instance` outside
 	the normal parent hierarchy (e.g. into `PlayerGui` or a tooltip layer).

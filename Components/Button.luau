@@ -1,5 +1,6 @@
 --[=[
 	@within Weave.Components
+	@module Button
 
 	Standardized text button. Manages Hovering and Pressed states and
 	disables `AutoButtonColor` for full visual control.

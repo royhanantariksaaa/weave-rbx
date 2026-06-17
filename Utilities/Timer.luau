@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Timer
 
 	A reactive numeric state that increments every `interval` seconds. Useful
 	for time-driven UI (cooldowns, tickers).

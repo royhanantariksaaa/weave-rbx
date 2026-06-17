@@ -1,3 +1,10 @@
+--[=[
+	@module Mixins
+	@within Weave.States
+
+	State primitive used by Weave reactive data flows.
+]=]
+
 -- Mixins: Shared Throttle / Debounce / Map methods.
 -- Adapted for closure accessor API.
 
@@ -30,14 +37,31 @@ local function ensurePool()
 	end)
 end
 
+--[=[
+	Handles the Throttle operation for Mixins.
+	@param accessor State accessor.
+	@param seconds Value passed to the Throttle operation.
+]=]
 function Mixins.Throttle(accessor, seconds: number)
 	return Mixins._createDelayed(accessor, seconds, false)
 end
 
+--[=[
+	Debounces state changes.
+	@param accessor Value passed to this API.
+	@param seconds Debounce duration in seconds.
+	@return any
+]=]
 function Mixins.Debounce(accessor, seconds: number)
 	return Mixins._createDelayed(accessor, seconds, true)
 end
 
+--[=[
+	Creates derived mapped state.
+	@param accessor Value passed to this API.
+	@param transformer Value passed to this API.
+	@return any
+]=]
 function Mixins.Map(accessor, transformer: (any) -> any)
 	return Computed(function()
 		local id = Engine.resolveId(accessor)
@@ -54,6 +78,12 @@ function Mixins.Map(accessor, transformer: (any) -> any)
 	end)
 end
 
+--[=[
+	Handles the _createDelayed operation for Mixins.
+	@param accessor State accessor.
+	@param seconds Value passed to the _createDelayed operation.
+	@param isDebounce Value passed to the _createDelayed operation.
+]=]
 function Mixins._createDelayed(accessor, seconds: number, isDebounce: boolean)
 	ensurePool()
 	local sourceId = Engine.resolveId(accessor)

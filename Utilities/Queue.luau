@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Queue
 
 	Reactive FIFO queue state for notifications, toasts, and event logs.
 

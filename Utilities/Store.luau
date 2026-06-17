@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Store
 
 	Redux-like centralized state management for complex client-side UI state.
 	Exposes a reactive `State`, a `Dispatch` for actions, and `Select` for

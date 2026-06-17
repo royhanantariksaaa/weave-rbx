@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Preload
 
 	Declaratively preloads assets via `ContentProvider` and suspends the
 	children render until all are ready, showing `Fallback` in the meantime.

@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Suspense
 
 	Halts rendering of `Children` until an `Async` resource resolves,
 	showing `Fallback` while pending. `Resource` may be a single async state

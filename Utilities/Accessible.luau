@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Accessible
 
 	Simplifies UI accessibility, gamepad navigation routing, and focus groups.
 

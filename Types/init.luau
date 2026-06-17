@@ -1,3 +1,10 @@
+--[=[
+	@module Types
+	@within Weave.Types
+
+	Shared Luau type definitions for Weave APIs.
+]=]
+
 local Base = require(script.Base)
 local GuiProps = require(script.GuiProps)
 local Scope = require(script.Scope)

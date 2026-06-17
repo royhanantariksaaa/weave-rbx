@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Profiler
 
 	Visual in-game debug overlay for Weave performance metrics. Mounted
 	automatically when `Weave.Debug = "overlay"`, or manually via

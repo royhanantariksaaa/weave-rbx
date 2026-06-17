@@ -1,5 +1,6 @@
 --[=[
 	@within Weave.Components
+	@module TextInput
 
 	Standardized text input. Handles Weave text binding and common events.
 ]=]

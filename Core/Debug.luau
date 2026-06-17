@@ -1,3 +1,10 @@
+--[=[
+	@module Debug
+	@within Weave.Core
+
+	Core runtime helper used by Weave rendering and reactivity internals.
+]=]
+
 -- Debug: Enhanced debug tooling for Weave.
 -- Tracks stat counters, configurable slow-flush threshold, and report generation.
 
@@ -21,6 +28,10 @@ Debug.Stats = {
 }
 
 -- Increment a stat counter. No-ops when Debug.Enabled is false.
+--[=[
+	Starts tracking work in a debug category.
+	@param category Debug category name.
+]=]
 function Debug.Track(category: string)
     if not Debug.Enabled then return end
     local current = Debug.Stats[category]
@@ -32,6 +43,10 @@ function Debug.Track(category: string)
 end
 
 -- Returns a formatted string summary of all tracked stats.
+--[=[
+	Builds a debug report.
+	@return string
+]=]
 function Debug.Report(): string
     local lines = { "[Weave Debug Report]" }
     for key, value in pairs(Debug.Stats) do
@@ -41,6 +56,9 @@ function Debug.Report(): string
 end
 
 -- Zeros all stat counters.
+--[=[
+	Clears tracked debug state.
+]=]
 function Debug.Reset()
     for key in pairs(Debug.Stats) do
         Debug.Stats[key] = 0

@@ -1,3 +1,10 @@
+--[=[
+	@module GuiProps
+	@within Weave.Types
+
+	Shared Luau type definitions for Weave APIs.
+]=]
+
 local Base = require(script.Parent.Base)
 type WState<T> = Base.WState<T>
 type UniqueId = string

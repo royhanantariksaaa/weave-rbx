@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Snapshot
 
 	Serializes and restores purely ephemeral UI state without tracking
 	dependencies. Use to capture and replay transient UI (active tab, search

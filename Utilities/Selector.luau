@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Selector
 
 	Equality-gated derivation. Projects a slice of a source state via
 	`selectorFn` and only re-emits when the slice changes per `equalsFn`.

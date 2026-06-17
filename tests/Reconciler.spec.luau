@@ -1,3 +1,10 @@
+--[=[
+	@module Reconciler.spec
+	@within Weave.tests
+
+	Test coverage for Weave behavior.
+]=]
+
 return function()
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
 	local WeaveEcs = require(ReplicatedStorage.Libraries.WeaveEcs)

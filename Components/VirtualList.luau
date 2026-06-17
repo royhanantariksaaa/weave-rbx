@@ -1,5 +1,6 @@
 --[=[
 	@within Weave.Components
+	@module VirtualList
 
 	Virtualized scrolling component for large lists. Only renders the visible
 	rows based on scroll position and window size.

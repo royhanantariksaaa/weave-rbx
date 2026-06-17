@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Value
 
 	Creates a Value entity and returns a `(getter, setter)` pair. The getter
 	tracks as a dependency when called inside `computed`/`effect`; the setter

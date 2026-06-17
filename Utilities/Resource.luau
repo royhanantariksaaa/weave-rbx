@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Resource
 
 	TanStack-Query-inspired data-fetching primitive for non-player data.
 	Exposes reactive `data`, `error`, `status`, and a `refetch` trigger.

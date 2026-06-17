@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module Gesture
 
 	Reactive input recognition for swipes, taps, and long presses on an
 	instance. Returns reactive states describing the recognized gesture.

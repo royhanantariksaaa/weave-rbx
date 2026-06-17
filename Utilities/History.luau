@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module History
 
 	Undo/redo state wrapper. Tracks a history of values for a source state
 	and exposes `Undo`/`Redo` plus reactive `CanUndo`/`CanRedo` flags.

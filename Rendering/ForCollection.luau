@@ -1,5 +1,6 @@
 --[=[
 	@within Weave
+	@module ForCollection
 
 	Unified key/value table iteration with key reuse. Backs the public
 	`ForKeys` and `ForValues` scope methods, which render one node per entry
