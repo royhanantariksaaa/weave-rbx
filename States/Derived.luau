@@ -1,3 +1,4 @@
+--!optimize 2
 --[=[
 	@module Derived
 	@within Weave.States

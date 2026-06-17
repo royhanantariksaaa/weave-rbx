@@ -1,3 +1,4 @@
+--!optimize 2
 --[=[
 	@module CreateComponent
 	@within Weave.Core

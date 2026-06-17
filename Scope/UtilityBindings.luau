@@ -1,3 +1,4 @@
+--!optimize 2
 --[=[
 	@within Weave
 	@module UtilityBindings
