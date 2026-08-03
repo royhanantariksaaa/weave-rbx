@@ -131,5 +131,5 @@ pass, and failure paths.
 
 <div className="chapter-next">
   <p><strong>Ready for a full reactive screen?</strong><br />Turn Flite's round model and Echo's event stream into Crystal Run's complete HUD.</p>
-  <a href="./project-crystal-run">Build the round HUD</a>
+  <a href="/weave-rbx/docs/project-crystal-run/">Build the round HUD</a>
 </div>

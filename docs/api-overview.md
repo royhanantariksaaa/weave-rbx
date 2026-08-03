@@ -32,8 +32,10 @@ description: Navigate Weave's root, Scope, and State APIs by task and understand
 
 ## State constructors
 
-The root module and every scope expose the same core state families. Scope
-methods register their result for teardown automatically.
+The root module and every scope expose the same core state families, but they
+do not return the same public shape. Root constructors preserve the low-level
+getter/setter closure API. Scope constructors adapt those accessors into
+callable state wrappers and register them for teardown automatically.
 
 | Primary | Alias | Writable | Role |
 |---|---|---:|---|
@@ -46,18 +48,31 @@ methods register their result for teardown automatically.
 | `tween(target, info)` | `Tween` | target-driven | TweenService animation state. |
 | `effect(callback)` | scope `Effect` | no | Run a tracked side effect. |
 
-## State object contract
+### Root accessors and scope wrappers
+
+| Origin | Example return | Read and write style | Ownership |
+|---|---|---|---|
+| `Weave.value(0)` | `getter, setter` closures | `getter()` and `setter(nextValue)` | Manual; call `Weave.destroy(getter)`. |
+| `Weave.computed(callback)` | getter closure | `getter()` | Manual; destroy the getter. |
+| `scope:Value(0)` | writable wrapper, plus setter convenience | `state()`, `state:Get()`, `state:Set(value)` | Automatic with the scope. |
+| `scope:Computed(callback)` | read-only wrapper | `state()` or `state:Get()` | Automatic with the scope. |
+| root or scope Spring/Tween | animation object | callable plus documented methods | Manual at root; automatic in a scope. |
+
+This distinction matters when copying examples. A `scope:Value` wrapper has
+methods; a getter returned by `Weave.value` is called directly.
+
+## Scoped state object contract
 
 | Method | Available on | Behavior |
 |---|---|---|
-| `Get()` | every state | Read and track inside Computed or Effect. |
-| `Peek()` | every state | Read without creating a dependency edge. |
-| `Set(value)` | writable state | Replace the current value. |
-| `Update(callback)` | writable state | Replace from the current value. |
-| `Map(callback)` | every state | Create a transformed computed state. |
-| `Throttle(seconds)` | every state | Create a rate-limited computed view. |
-| `Debounce(seconds)` | every state | Create a settled computed view. |
-| `Destroy()` | every state | Release its graph node idempotently. |
+| `Get()` or `()` | every scoped wrapper | Read and track inside Computed or Effect. |
+| `Peek()` | every scoped wrapper | Read without creating a dependency edge. |
+| `Set(value)` | writable scoped wrapper | Replace the current value. |
+| `Update(callback)` | writable scoped wrapper | Replace from the current value. |
+| `Map(callback)` | every scoped wrapper | Create a scope-owned transformed Computed wrapper. |
+| `Throttle(seconds)` | every scoped wrapper | Create a scope-owned rate-limited Computed view. |
+| `Debounce(seconds)` | every scoped wrapper | Create a scope-owned settled Computed view. |
+| `Destroy()` | every scoped wrapper | Release its graph node idempotently before scope teardown. |
 
 ## Rendering symbols
 

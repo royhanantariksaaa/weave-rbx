@@ -189,5 +189,5 @@ then apply those systems to one complete screen.
 
 <div className="chapter-next">
   <p><strong>Continue into the complete game.</strong><br />Build a responsive HUD from Flite's live round model and Echo's pickup events.</p>
-  <a href="./project-crystal-run">Build the Crystal Run HUD</a>
+  <a href="/weave-rbx/docs/project-crystal-run/">Build the Crystal Run HUD</a>
 </div>
