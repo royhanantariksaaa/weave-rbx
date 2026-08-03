@@ -7,8 +7,8 @@
 
 return function()
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local WeaveEcs = require(ReplicatedStorage.Libraries.WeaveEcs)
-	local Engine = require(ReplicatedStorage.Libraries.WeaveEcs.Core.Engine)
+	local WeaveEcs = require(ReplicatedStorage.Libraries.Weave)
+	local Engine = require(ReplicatedStorage.Libraries.Weave.Core.Engine)
 
 	describe("Computed", function()
 		it("should resolve a simple derived function", function()
@@ -55,6 +55,48 @@ return function()
 			expect(d3()).to.equal(16)
 			setV(5)
 			expect(d3()).to.equal(40)
+		end)
+
+		it("should coalesce multiple writes into one computed evaluation", function()
+			local left, setLeft = WeaveEcs.value(1)
+			local right, setRight = WeaveEcs.value(2)
+			local evaluations = 0
+			local total = WeaveEcs.computed(function()
+				evaluations += 1
+				return left() + right()
+			end)
+
+			expect(total()).to.equal(3)
+			expect(evaluations).to.equal(1)
+
+			Engine.batch(function()
+				setLeft(10)
+				setRight(20)
+			end)
+
+			expect(total()).to.equal(30)
+			expect(evaluations).to.equal(2)
+		end)
+
+		it("should remove stale dependencies when a computed branch changes", function()
+			local useLeft, setUseLeft = WeaveEcs.value(true)
+			local left = WeaveEcs.value("left")
+			local right = WeaveEcs.value("right")
+			local selected = WeaveEcs.computed(function()
+				return if useLeft() then left() else right()
+			end)
+
+			local selectedId = Engine.resolveId(selected)
+			local leftId = Engine.resolveId(left)
+			local rightId = Engine.resolveId(right)
+			expect(table.find(Engine.Dependencies[leftId], selectedId)).to.be.ok()
+
+			setUseLeft(false)
+
+			expect(selected()).to.equal("right")
+			expect(Engine.Dependencies[leftId] == nil
+				or table.find(Engine.Dependencies[leftId], selectedId) == nil).to.equal(true)
+			expect(table.find(Engine.Dependencies[rightId], selectedId)).to.be.ok()
 		end)
 	end)
 end

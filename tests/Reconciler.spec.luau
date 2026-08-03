@@ -7,8 +7,8 @@
 
 return function()
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local WeaveEcs = require(ReplicatedStorage.Libraries.WeaveEcs)
-	local Engine = require(ReplicatedStorage.Libraries.WeaveEcs.Core.Engine)
+	local WeaveEcs = require(ReplicatedStorage.Libraries.Weave)
+	local Engine = require(ReplicatedStorage.Libraries.Weave.Core.Engine)
 
 	describe("Reconciler", function()
 		it("should mount and bind reactive properties to a DOM instance", function()

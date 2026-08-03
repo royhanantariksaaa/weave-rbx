@@ -11,8 +11,21 @@
 	@return WeaveNode
 ]=]
 
+local Engine = require(script.Parent.Parent.Core.Engine)
+
 local function isSingleAsync(resource)
-	return type(resource) == "table" and resource.Type == "WeaveAsync"
+	if type(resource) == "table" then
+		return resource.Type == "Async" or resource.Type == "WeaveAsync"
+	end
+	local id = Engine.resolveId(resource)
+	return id ~= nil and Engine.StateTypes[id] == "Async"
+end
+
+local function peekResource(resource)
+	if type(resource) == "table" and type(resource.Peek) == "function" then
+		return resource:Peek()
+	end
+	return Engine.peek(resource)
 end
 
 return function(_Scope, Signal)
@@ -37,15 +50,16 @@ return function(_Scope, Signal)
 			Resolved = function(childScope)
 				local values = table.create(#resources)
 				for i, res in ipairs(resources) do
-					values[i] = res:Peek().Value
+					values[i] = peekResource(res).Value
 				end
 				return children(childScope, isSingle and values[1] or values)
 			end,
 			Rejected = function(childScope)
 				local err = nil
 				for _, res in ipairs(resources) do
-					if res:Peek().Status == "Rejected" then
-						err = res:Peek().Error
+					local result = peekResource(res)
+					if result.Status == "Rejected" then
+						err = result.Error
 						break
 					end
 				end

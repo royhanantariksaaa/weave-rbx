@@ -11,56 +11,57 @@ type ContentId = string
 type SecurityCapabilities = any
 type Font = any
 
-export type Value<T> = {
-    Type: string,
-    Set: (self: Value<T>, newValue: T) -> (),
-    Update: (self: Value<T>, updater: (T) -> T) -> (),
-    Get: (self: Value<T>) -> T,
-    Map: (self: Value<T>, transformer: (T) -> any) -> any,
-    Throttle: (self: Value<T>, seconds: number) -> any,
-    Debounce: (self: Value<T>, seconds: number) -> any,
-    Destroy: (self: Value<T>) -> ()
+type StateMetatable<T> = {
+    __call: (self: any) -> T,
 }
 
-export type Computed<T> = {
+type ReadableFields<T> = {
     Type: string,
-    Get: (self: Computed<T>) -> T,
-    Map: (self: Computed<T>, transformer: (T) -> any) -> any,
-    Throttle: (self: Computed<T>, seconds: number) -> any,
-    Debounce: (self: Computed<T>, seconds: number) -> any,
-    Destroy: (self: Computed<T>) -> ()
+    Get: (self: any) -> T,
+    Peek: (self: any) -> T,
+    Map: (self: any, transformer: (T) -> any) -> any,
+    Throttle: (self: any, seconds: number) -> any,
+    Debounce: (self: any, seconds: number) -> any,
+    Destroy: (self: any) -> (),
 }
 
-export type Spring<T> = {
-    Type: string,
-    Get: (self: Spring<T>) -> T,
-    Map: (self: Spring<T>, transformer: (T) -> any) -> any,
-    Awake: (self: Spring<T>) -> (),
-    Destroy: (self: Spring<T>) -> ()
+type WritableFields<T> = ReadableFields<T> & {
+    Set: (self: any, newValue: T) -> (),
+    Update: (self: any, updater: (T) -> T) -> (),
 }
 
-export type Tween<T> = {
-    Type: string,
-    Get: (self: Tween<T>) -> T,
-    Map: (self: Tween<T>, transformer: (T) -> any) -> any,
-    Set: (self: Tween<T>, newValue: T) -> (),
-    Awake: (self: Tween<T>) -> (),
-    Destroy: (self: Tween<T>) -> ()
+export type Value<T> = typeof(setmetatable({} :: WritableFields<T>, {} :: StateMetatable<T>))
+export type Computed<T> = typeof(setmetatable({} :: ReadableFields<T>, {} :: StateMetatable<T>))
+
+type SpringFields<T> = ReadableFields<T> & {
+    Awake: (self: any) -> (),
+    SetSpeed: (self: any, speed: number) -> (),
+    SetDamping: (self: any, damping: number) -> (),
 }
 
-export type Derived<T> = {
-    Type: string,
-    Get: (self: Derived<T>) -> T,
-    Set: (self: Derived<T>, newValue: T) -> (),
-    Map: (self: Derived<T>, transformer: (T) -> any) -> any,
-    Destroy: (self: Derived<T>) -> ()
+type TweenFields<T> = ReadableFields<T> & {
+    Set: (self: any, newValue: T) -> (),
+    Awake: (self: any) -> (),
 }
+
+export type Spring<T> = typeof(setmetatable({} :: SpringFields<T>, {} :: StateMetatable<T>))
+export type Tween<T> = typeof(setmetatable({} :: TweenFields<T>, {} :: StateMetatable<T>))
+export type Derived<T> = typeof(setmetatable({} :: WritableFields<T>, {} :: StateMetatable<T>))
+
+export type AsyncStatus<T> = {
+    Status: "Pending" | "Resolved" | "Rejected",
+    Value: T?,
+    Error: any?,
+}
+
+export type Async<T> = Computed<AsyncStatus<T>>
+export type Reducer<T> = Value<T>
 
 export type StateObject<T> = {
     Get: (self: any) -> T,
     [any]: any
 }
 
-export type WState<T> = StateObject<T> | T
+export type WState<T> = (() -> T) | StateObject<T> | T
 
 return {}

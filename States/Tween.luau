@@ -18,7 +18,7 @@ local TweenLib = require(script.Parent.Parent.Parent.Tween)
 local WeaveTypes = require(script.Parent.Parent.Types)
 local Engine = require(script.Parent.Parent.Core.Engine)
 
-local Tween = setmetatable({}, { __index = AnimationState })
+local Tween = {}
 Tween.__index = Tween
 Tween.Type = "WeaveTween"
 
@@ -38,10 +38,10 @@ end
 	@param val Value passed to the Set operation.
 ]=]
 function Tween:Set(val: any)
+	if self._destroyed then return end
 	if self._value ~= val then
 		self._value = val
-		Engine.Values[self._id] = val
-		self._changed:Fire(val)
+		Engine.set(self._id, val, self._generation)
 	end
 end
 
@@ -66,6 +66,8 @@ function Tween:_onBeforeDestroy()
 		self._tweenController = nil
 	end
 end
+
+AnimationState.Compose(Tween)
 
 return function<T>(targetAccessor, tweenInfo: TweenInfo?): WeaveTypes.Tween<T>
 	return Tween.new(targetAccessor, tweenInfo)

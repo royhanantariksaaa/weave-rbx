@@ -12,7 +12,7 @@
 	- **Scopes & mounting**: `Weave.scope()` / `Weave.mount(parent, builder)`
 	- **State constructors**: `Weave.value`, `Weave.computed`, `Weave.spring`,
 	  `Weave.tween`, `Weave.async`, `Weave.reducer`, `Weave.derived`
-	- **Reactive primitives**: `Weave.effect`, `Weave.peek`, `Weave.destroy`
+	- **Reactive primitives**: `Weave.effect`, `Weave.batch`, `Weave.peek`, `Weave.destroy`
 	- **Element helpers**: `Weave.children`, `Weave.onEvent`, `Weave.onChange`,
 	  `Weave.bind`, `Weave.ref`
 	- **Styling & context**: `Weave.defineStyle`, `Weave.createContext`
@@ -234,6 +234,7 @@ local Weave = {
     end,
     
     -- Utility functions (camelCase)
+    batch = Engine.batch,
     peek = Engine.peek,
     destroy = Engine.destroy,
     isState = Engine.isState,
@@ -251,6 +252,7 @@ local Weave = {
     Tween = require(script.States.Tween),
     Async = require(script.States.Async),
     Reducer = require(script.States.Reducer),
+    Batch = Engine.batch,
     Peek = Engine.peek,
     Destroy = Engine.destroy,
     IsState = Engine.isState,

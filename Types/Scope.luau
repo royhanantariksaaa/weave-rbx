@@ -16,6 +16,8 @@ type Computed<T> = Base.Computed<T>
 type Spring<T> = Base.Spring<T>
 type Tween<T> = Base.Tween<T>
 type Derived<T> = Base.Derived<T>
+type Async<T> = Base.Async<T>
+type Reducer<T> = Base.Reducer<T>
 
 type ScreenGuiProps = GuiProps.ScreenGuiProps
 type FrameProps = GuiProps.FrameProps
@@ -47,25 +49,43 @@ type SelectionBoxProps = GuiProps.SelectionBoxProps
 type SelectionSphereProps = GuiProps.SelectionSphereProps
 type HighlightProps = GuiProps.HighlightProps
 export type Scope = {
-    Value: <T>(initialValue: T, options: {validate: ((T) -> T)?}?) -> Value<T>,
-    Computed: <T>(callback: (use: <U>(state: Value<U> | Computed<U> | Spring<U> | Tween<U> | U) -> U) -> T) -> Computed<T>,
+    value: <T>(initialValue: T, options: {validate: ((T) -> T)?}?) -> (Value<T>, (T) -> ()),
+    computed: <T>(callback: (use: <U>(state: Value<U> | Computed<U> | Spring<U> | Tween<U> | U) -> U) -> T, options: { equals: ((T, T) -> boolean)? }?) -> Computed<T>,
+    spring: <T>(targetState: Value<T> | Computed<T>, speed: number?, damping: number?) -> Spring<T>,
+    tween: <T>(targetState: Value<T> | Computed<T>, tweenInfo: TweenInfo?) -> Tween<T>,
+    derived: <T>(callback: (use: <U>(state: any) -> U) -> T, options: { equals: ((T, T) -> boolean)? }?) -> (Derived<T>, (T) -> ()),
+    async: <T>(producer: () -> T) -> Async<T>,
+    reducer: <S, A>(reducer: (S, A) -> S, initialState: S) -> (Reducer<S>, (A) -> ()),
+    effect: (callback: (use: <U>(state: any) -> U) -> ()) -> Computed<any>,
+    fragment: (children: { any }) -> { any },
+
+    Value: <T>(initialValue: T, options: {validate: ((T) -> T)?}?) -> (Value<T>, (T) -> ()),
+    Computed: <T>(callback: (use: <U>(state: Value<U> | Computed<U> | Spring<U> | Tween<U> | U) -> U) -> T, options: { equals: ((T, T) -> boolean)? }?) -> Computed<T>,
     Spring: <T>(targetState: Value<T> | Computed<T>, speed: number?, damping: number?) -> Spring<T>,
     Tween: <T>(targetState: Value<T> | Computed<T>, tweenInfo: TweenInfo?) -> Tween<T>,
-    Derived: <T>(callback: (use: <U>(state: any) -> U) -> T) -> Derived<T>,
+    Derived: <T>(callback: (use: <U>(state: any) -> U) -> T, options: { equals: ((T, T) -> boolean)? }?) -> (Derived<T>, (T) -> ()),
+    Async: <T>(producer: () -> T) -> Async<T>,
+    Reducer: <S, A>(reducer: (S, A) -> S, initialState: S) -> (Reducer<S>, (A) -> ()),
     Show: <T>(conditionState: Value<boolean> | Computed<boolean>, builderFunc: (scope: Scope) -> any) -> any,
     Switch: <T>(state: Value<T> | Computed<T>, cases: {[T | string]: (scope: Scope, value: T) -> any}) -> any,
     ErrorBoundary: (builderFunc: (scope: Scope) -> any, fallbackFunc: ((scope: Scope, err: string) -> any)?) -> any,
     OnDestroy: (callback: () -> ()) -> (),
+	OnMount: (callback: () -> ()) -> (),
     Portal: (props: {Target: Instance | WState<Instance>, [any]: any}) -> any,
     
     Effect: (callback: (use: <U>(state: any) -> U) -> ()) -> any,
     ForValues: <T>(sourceState: any, renderFunc: (scope: Scope, value: T, index: number) -> Instance) -> any,
+    ForKeys: <K, V>(sourceState: any, renderFunc: (scope: Scope, key: K, value: V) -> Instance) -> any,
     Transition: (conditionState: Value<boolean> | Computed<boolean>, buildFunc: (scope: Scope) -> any, transitionProps: {Enter: ((instances: {Instance}) -> ())?, Exit: ((instances: {Instance}, done: () -> ()) -> ())?}?) -> any,
     
     Ref: () -> { Get: (self: any) -> Instance?, Set: (self: any, v: Instance) -> () },
     Watch: <T>(state: WState<T>, callback: (new: T, old: T) -> ()) -> any,
     Fragment: (children: {any}) -> any,
-    Lazy: (factory: () -> any) -> any,
+    Lazy: (lazyRef: any, fallback: ((Scope) -> any)?) -> any,
+    Provider: (context: any, value: any, builder: (Scope) -> any) -> any,
+    Suspense: (props: { Resource: any, Fallback: (Scope) -> any, Children: (Scope, any) -> any }) -> any,
+    Preload: (props: { Assets: Instance | { Instance }, Fallback: (Scope) -> any, Children: (Scope) -> any }) -> any,
+    Profiler: () -> any,
     
     -- SolidJS Aliases
     createSignal: <T>(initial: T) -> (Value<T>, (T) -> ()),
@@ -78,8 +98,8 @@ export type Scope = {
  
 	-- Utilities
     Store: <S, A>(initial: S, config: { actions: A, middleware: any? }) -> { State: Value<S>, Dispatch: any, Select: (fn: (S) -> any) -> Computed<any> },
-    Resource: <T>(keyState: WState<string>, fetcher: () -> T, config: any?) -> { Data: Value<T?>, Error: Value<string?>, Status: Value<string>, Refetch: () -> (), Invalidate: () -> () },
-    Queue: <T>(options: { maxSize: number? }) -> { Push: (T) -> (), Pop: () -> T?, PeekFront: () -> T?, Items: Value<{T}>, Count: Value<number> },
+    Resource: <T>(keyState: WState<string>, fetcher: (string) -> T, config: any?) -> { data: Value<T?>, error: Value<any?>, status: Value<string>, refetch: () -> (), invalidate: () -> () },
+    Queue: <T>(options: { maxSize: number? }?) -> { Push: (T) -> (), Pop: () -> T?, PeekFront: () -> T?, Clear: () -> (), Items: Value<{T}>, Count: Value<number> },
     Float: (anchorRef: { Get: (self: any) -> Instance? }, options: any) -> { Position: Value<UDim2>, Visible: Value<boolean> },
     Parallax: (scrollState: WState<number|Vector2>, layers: {{instance: Instance, speed: number}}) -> (),
     Snapshot: (stateMap: {[string]: WState<any>}) -> {[string]: any},
@@ -87,8 +107,11 @@ export type Scope = {
     Gesture: (instance: Instance, options: { swipe: boolean?, longPress: number?, doubleTap: number? }?) -> { SwipeDirection: Value<Enum.SwipeDirection?>, IsLongPressing: Value<boolean>, GesturePhase: Value<string>, TapCount: Value<number> },
     Accessible: (instance: Instance, options: { role: string?, selectionOrder: number?, focusTrap: boolean? }?) -> Instance,
     FocusGroup: (instances: {Instance}) -> {Instance},
+    ObserveNet: (source: any, ...any) -> Value<any>,
+    Form: (initialValues: { [string]: any }?) -> { Values: Value<{ [string]: any }>, Errors: Value<{ [string]: any }>, Touched: Value<{ [string]: boolean }>, Update: (string, any) -> (), SetError: (string, any) -> (), Submit: (({ [string]: any }) -> ()) -> () -> () },
     
-    Batch: (callback: () -> ()) -> (),
+    Batch: <T...>(callback: () -> T...) -> T...,
+    batch: <T...>(callback: () -> T...) -> T...,
     Selector: <T, U>(state: WState<T>, selectorFn: (T) -> U, equalsFn: ((U, U) -> boolean)?) -> Computed<U>,
     Combine: <T>(...any) -> Computed<T>,
     Previous: <T>(state: WState<T>) -> Value<T?>,
@@ -105,6 +128,7 @@ export type Scope = {
     
     Provide: ((key: string, value: any) -> ()) & ((context: {[string]: any}) -> ()),
     Consume: (key: string) -> any,
+	UseContext: (context: { _id: string, DefaultValue: any }) -> any,
     
     RegisterComponent: (name: string, componentFunc: (scope: Scope, props: {[any]: any}) -> any) -> (),
     Hydrate: (instance: Instance, props: {[any]: any}) -> Instance,

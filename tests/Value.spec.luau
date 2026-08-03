@@ -7,8 +7,8 @@
 
 return function()
 	local ReplicatedStorage = game:GetService("ReplicatedStorage")
-	local WeaveEcs = require(ReplicatedStorage.Libraries.WeaveEcs)
-	local Engine = require(ReplicatedStorage.Libraries.WeaveEcs.Core.Engine)
+	local WeaveEcs = require(ReplicatedStorage.Libraries.Weave)
+	local Engine = require(ReplicatedStorage.Libraries.Weave.Core.Engine)
 
 	describe("Value", function()
 		it("should initialize with a value", function()
@@ -45,6 +45,25 @@ return function()
 			expect(Engine.Values[id]).to.equal("DeleteMe")
 			WeaveEcs.destroy(val)
 			expect(Engine.Values[id]).to.equal(nil)
+		end)
+
+		it("should reject stale accessors after recycling their state id", function()
+			local stale, setStale = WeaveEcs.value("old")
+			local recycledId = Engine.resolveId(stale)
+			WeaveEcs.destroy(stale)
+			WeaveEcs.destroy(stale)
+
+			local replacement = WeaveEcs.value("replacement")
+			local another = WeaveEcs.value("another")
+			expect(Engine.resolveId(replacement)).to.equal(recycledId)
+			expect(Engine.resolveId(another) ~= recycledId).to.equal(true)
+			expect(Engine.resolveId(stale)).to.equal(nil)
+
+			local readOk = pcall(stale)
+			local writeOk = pcall(setStale, "corrupt")
+			expect(readOk).to.equal(false)
+			expect(writeOk).to.equal(false)
+			expect(replacement()).to.equal("replacement")
 		end)
 	end)
 end

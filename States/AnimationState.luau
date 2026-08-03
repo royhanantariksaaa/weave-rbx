@@ -20,12 +20,33 @@ local AnimationState = {}
 AnimationState.__index = AnimationState
 AnimationState._WeaveNodeType = WeaveTypes.NodeType.State
 
+function AnimationState.Compose(component: any)
+	component.__index = component
+	component.__call = component.__call or function(state)
+		return state:Get()
+	end
+	component._WeaveNodeType = AnimationState._WeaveNodeType
+	component._onTargetChanged = component._onTargetChanged or AnimationState._onTargetChanged
+	component.Awake = component.Awake or AnimationState.Awake
+	component._doAwake = component._doAwake or AnimationState._doAwake
+	component.Destroy = component.Destroy or AnimationState.Destroy
+	component.Get = component.Get or AnimationState.Get
+	component.Peek = component.Peek or AnimationState.Peek
+	component.Map = component.Map or AnimationState.Map
+	component.Throttle = component.Throttle or AnimationState.Throttle
+	component.Debounce = component.Debounce or AnimationState.Debounce
+	component._onBeforeDestroy = component._onBeforeDestroy or AnimationState._onBeforeDestroy
+	return component
+end
+
 local function wrapComputedAccessor(accessor)
 	local id = Engine.resolveId(accessor)
 	local state = {
 		_id = id,
+		_generation = id and Engine.getGeneration(id) or nil,
 		_changed = id and Engine.Signals[id] or nil,
 		_isWeaveState = true,
+		_destroyed = false,
 		Type = "Computed",
 	}
 
@@ -42,7 +63,7 @@ local function wrapComputedAccessor(accessor)
 		@return any
 	]=]
 	function state:Peek()
-		return id and Engine.peek(id) or accessor()
+		return id and Engine.peek(self) or accessor()
 	end
 
 	--[=[
@@ -75,8 +96,12 @@ local function wrapComputedAccessor(accessor)
 		Destroys the object and releases resources.
 	]=]
 	function state:Destroy()
-		if id then
-			Engine.destroy(id)
+		if self._destroyed then
+			return
+		end
+		self._destroyed = true
+		if self._id then
+			Engine.destroy(self)
 		end
 	end
 
@@ -97,16 +122,19 @@ function AnimationState._init(self, targetAccessor)
 	assert(targetId, "AnimationState: target must be a state accessor or ID")
 	
 	self._id = Engine.newState()
+	self._generation = Engine.getGeneration(self._id)
 	self._targetStateId = targetId
-	
+	self._destroyed = false
 	self._changed = Signal.new()
 	
 	Engine.Values[self._id] = Engine.peek(targetAccessor)
 	Engine.StateTypes[self._id] = "Animation"
+	Engine.Signals[self._id] = self._changed
 	
 	local targetSignal = Engine.Signals[targetId]
 	if targetSignal then
 		self._targetListener = targetSignal:Connect(function()
+			if self._destroyed then return end
 			self:_onTargetChanged()
 			self:Awake()
 		end)
@@ -122,12 +150,12 @@ function AnimationState:_onTargetChanged() end
 	Documents the Awake API.
 ]=]
 function AnimationState:Awake()
+	if self._destroyed then return end
 	local targetValue = Engine.Values[self._targetStateId]
 	local valueType = typeof(targetValue)
 	if not Helpers.SUPPORTED_ANIMATABLE_TYPES[valueType] then
 		self._value = targetValue
-		Engine.Values[self._id] = targetValue
-		self._changed:Fire(targetValue)
+		Engine.set(self._id, targetValue, self._generation)
 		return
 	end
 	self:_doAwake()
@@ -142,15 +170,17 @@ function AnimationState:_doAwake() end
 	Destroys the object and releases resources.
 ]=]
 function AnimationState:Destroy()
+	if self._destroyed then return end
+	self._destroyed = true
 	self:_onBeforeDestroy()
 	if self._targetListener then
 		self._targetListener:Disconnect()
+		self._targetListener = nil
 	end
-	if self._changed then
-		self._changed:Destroy()
-	end
-	Engine.Values[self._id] = nil
-	Engine.StateTypes[self._id] = nil
+	Engine.destroy(self)
+	self._changed = nil
+	self._id = nil
+	self._generation = nil
 end
 
 --[=[
@@ -158,7 +188,7 @@ end
 	@return any
 ]=]
 function AnimationState:Get()
-	return self._value
+	return Engine.get(self._id, self._generation)
 end
 
 --[=[
@@ -166,7 +196,7 @@ end
 	@return any
 ]=]
 function AnimationState:Peek()
-	return self._value
+	return Engine.peek(self)
 end
 
 --[=[

@@ -15,6 +15,9 @@ export type Computed<T> = Base.Computed<T>
 export type Spring<T> = Base.Spring<T>
 export type Tween<T> = Base.Tween<T>
 export type Derived<T> = Base.Derived<T>
+export type AsyncStatus<T> = Base.AsyncStatus<T>
+export type Async<T> = Base.Async<T>
+export type Reducer<T> = Base.Reducer<T>
 export type WState<T> = Base.WState<T>
 
 export type BaseGUIProps = GuiProps.BaseGUIProps
@@ -54,7 +57,7 @@ local Symbol = require(script.Parent.Parent.Symbol)
 
 export type WeaveModule = {
     -- core api
-    scope: () -> Scope.Scope,
+	scope: (parentScope: Scope.Scope?) -> Scope.Scope,
     children: any,
     onEvent: (string) -> any,
     onChange: (string) -> any,
@@ -64,23 +67,26 @@ export type WeaveModule = {
     createContext: (any) -> any,
     memo: (any) -> any,
     lazy: (factory: () -> any) -> any,
-    mount: ((parent: Instance, builderFunc: () -> any) -> (() -> ())) & 
-           ((parent: Instance, name: string, builderFunc: () -> any) -> (() -> ())) & 
-           ((parent: Instance, props: GuiProps.ScreenGuiProps, builderFunc: () -> any) -> (() -> ())),
+    mount: ((parent: Instance, builderFunc: (Scope.Scope) -> any) -> (() -> ())) &
+           ((parent: Instance, name: string, builderFunc: (Scope.Scope) -> any) -> (() -> ())) &
+           ((parent: Instance, props: GuiProps.ScreenGuiProps, builderFunc: (Scope.Scope) -> any) -> (() -> ())),
            
-    value: <T>(initial: T) -> ( () -> T, (T) -> () ),
-    computed: <T>(computeFunc: () -> T) -> () -> T,
-    derived: <T>(computeFunc: () -> T) -> () -> T,
-    spring: <T>(target: () -> T, damping: number?, speed: number?) -> () -> T,
-    tween: <T>(target: () -> T, tweenInfo: TweenInfo?) -> () -> T,
+    value: <T>(initial: T, options: { validate: ((T) -> T)? }?) -> (() -> T, (T) -> ()),
+    computed: <T>(computeFunc: () -> T, options: { equals: ((T, T) -> boolean)? }?) -> () -> T,
+    derived: <T>(computeFunc: () -> T, options: { equals: ((T, T) -> boolean)? }?) -> (() -> T, (T) -> ()),
+    spring: <T>(target: any, speed: number?, damping: number?) -> Base.Spring<T>,
+    tween: <T>(target: any, tweenInfo: TweenInfo?) -> Base.Tween<T>,
+    async: <T>(producer: () -> T) -> () -> Base.AsyncStatus<T>,
+    reducer: <S, A>(reducer: (S, A) -> S, initial: S) -> (() -> S, (A) -> ()),
     effect: (callback: () -> ()) -> () -> any,
+	batch: <T...>(callback: () -> T...) -> T...,
     
     peek: (stateNode: any) -> any,
     destroy: (stateNode: any) -> (),
     isState: (stateNode: any) -> boolean,
 
     -- legacy pascal case
-    Scope: () -> Scope.Scope,
+	Scope: (parentScope: Scope.Scope?) -> Scope.Scope,
     Children: any,
     OnEvent: (string) -> any,
     OnChange: (string) -> any,
@@ -89,21 +95,24 @@ export type WeaveModule = {
     DefineStyle: any,
     CreateContext: (any) -> any,
     Memo: (any) -> any,
-    Mount: ((parent: Instance, builderFunc: () -> any) -> (() -> ())) & 
-           ((parent: Instance, name: string, builderFunc: () -> any) -> (() -> ())) & 
-           ((parent: Instance, props: GuiProps.ScreenGuiProps, builderFunc: () -> any) -> (() -> ())),
+    Mount: ((parent: Instance, builderFunc: (Scope.Scope) -> any) -> (() -> ())) &
+           ((parent: Instance, name: string, builderFunc: (Scope.Scope) -> any) -> (() -> ())) &
+           ((parent: Instance, props: GuiProps.ScreenGuiProps, builderFunc: (Scope.Scope) -> any) -> (() -> ())),
 
     Value: any,
     Computed: any,
     Derived: any,
     Spring: any,
     Tween: any,
+    Async: any,
+    Reducer: any,
+	Batch: <T...>(callback: () -> T...) -> T...,
     Peek: any,
     Destroy: any,
     IsState: any,
 
     Components: any,
-    Debug: boolean,
+    Debug: boolean | string?,
 
     -- Helpers
     color3: (r: number, g: number, b: number) -> Color3,
