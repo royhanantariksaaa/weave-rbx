@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Weave Reactive Playground</title>
+  <link rel="stylesheet" href="./styles.css">
+  <script src="./app.js" defer></script>
+</head>
+<body>
+  <header class="appbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">W</span>
+      <div>
+        <strong>Weave Playground</strong>
+        <span>Reactive graph laboratory</span>
+      </div>
+    </div>
+    <div class="appbar-actions">
+      <span class="model-badge">Browser model</span>
+      <a href="../docs/tutorial-reactive-counter/" target="_top">Open tutorial</a>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <section class="editor-panel" aria-labelledby="program-heading">
+      <div class="panel-heading">
+        <div>
+          <span class="eyebrow">Editable Luau subset</span>
+          <h1 id="program-heading">State program</h1>
+        </div>
+        <label class="example-picker">
+          <span>Example</span>
+          <select id="examplePicker">
+            <option value="counter">Reactive counter</option>
+            <option value="cart">Cart total</option>
+            <option value="health">Health model</option>
+          </select>
+        </label>
+      </div>
+
+      <textarea id="scriptEditor" aria-label="Weave state program" spellcheck="false"></textarea>
+
+      <div class="editor-actions">
+        <button class="primary" id="runButton" type="button">Run program</button>
+        <button class="secondary" id="resetButton" type="button">Reset</button>
+      </div>
+
+      <p class="editor-error" id="editorError" role="alert"></p>
+
+      <div class="syntax-strip" aria-label="Supported APIs">
+        <span>Value</span>
+        <span>Computed</span>
+        <span>Set</span>
+        <span>Update</span>
+        <span>Batch</span>
+      </div>
+
+      <p class="model-note">
+        This lab models Weave dependency tracking and batch flushes. The
+        tutorial runs the complete Instance binding code in Roblox Studio.
+      </p>
+    </section>
+
+    <section class="stage" aria-labelledby="stage-heading">
+      <div class="stage-heading">
+        <div>
+          <span class="eyebrow">Live propagation</span>
+          <h2 id="stage-heading">Dependency graph</h2>
+        </div>
+        <span class="runtime-state" id="runtimeState">Ready</span>
+      </div>
+
+      <div class="metrics" aria-label="Propagation metrics">
+        <div class="metric">
+          <span>Writes</span>
+          <strong id="writeCount">0</strong>
+        </div>
+        <div class="metric">
+          <span>Recomputes</span>
+          <strong id="recomputeCount">0</strong>
+        </div>
+        <div class="metric">
+          <span>Binding paints</span>
+          <strong id="paintCount">0</strong>
+        </div>
+      </div>
+
+      <section class="graph-panel" aria-label="Reactive dependency graph">
+        <div class="graph-column">
+          <div class="column-heading">
+            <span>Writable</span>
+            <strong>Value</strong>
+          </div>
+          <div class="node-list" id="valueNodes"></div>
+        </div>
+        <div class="graph-arrow" aria-hidden="true">
+          <span></span>
+        </div>
+        <div class="graph-column">
+          <div class="column-heading">
+            <span>Cached</span>
+            <strong>Computed</strong>
+          </div>
+          <div class="node-list" id="computedNodes"></div>
+        </div>
+        <div class="graph-arrow" aria-hidden="true">
+          <span></span>
+        </div>
+        <div class="preview-column">
+          <div class="column-heading">
+            <span>Bound output</span>
+            <strong>UI preview</strong>
+          </div>
+          <div class="counter-preview" id="counterPreview">
+            <span class="preview-kicker">Reactive output</span>
+            <strong id="previewHeadline">Run a program</strong>
+            <span id="previewDetail">Bindings will settle here.</span>
+            <div class="preview-bars" id="previewBars"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="quick-actions">
+        <span>After the run:</span>
+        <button id="incrementButton" type="button" disabled>Set +1</button>
+        <button id="batchButton" type="button" disabled>Batch +3</button>
+      </div>
+
+      <section class="trace-panel" aria-labelledby="trace-heading">
+        <div class="section-heading">
+          <h3 id="trace-heading">Propagation trace</h3>
+          <span>Watch batches collapse writes</span>
+        </div>
+        <ol class="trace" id="trace" aria-live="polite"></ol>
+      </section>
+    </section>
+  </main>
+</body>
+</html>
