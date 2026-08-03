@@ -4,6 +4,21 @@ sidebar_position: 2
 
 # Getting Started
 
+<div className="lesson-header">
+  <p className="lesson-kicker"><span className="streamline-icon streamline-icon--book" aria-hidden="true"></span> Core lesson / Chapter 2</p>
+  <p className="lesson-summary">Mount a scoped interface, derive UI from tracked state, and release the whole tree through one cleanup boundary.</p>
+  <div className="lesson-progress" aria-label="Learn Weave progress: 40 percent"><span className="lesson-progress__fill lesson-progress__fill--40"></span></div>
+</div>
+
+<div className="lesson-goals">
+  <strong>You will build</strong>
+  <ul>
+    <li>A mounted UI tree owned by one Weave scope.</li>
+    <li>Writable and computed state with reactive property bindings.</li>
+    <li>The ownership pattern used by Crystal Run's complete HUD.</li>
+  </ul>
+</div>
+
 ## Installation
 
 Map Weave to `ReplicatedStorage.Libraries.Weave` and provide its runtime
@@ -53,5 +68,7 @@ end)
 
 Bindings and dependent computations observe the settled result once.
 
-Continue with [Build a Reactive Counter](./tutorial-reactive-counter) to
-connect state, computed values, Instance bindings, events, and unmount cleanup.
+<div className="chapter-next">
+  <p><strong>Next: build one feature completely.</strong><br />Connect state, computed values, Instance bindings, events, and unmount cleanup.</p>
+  <a href="./tutorial-reactive-counter">Build the reactive counter</a>
+</div>

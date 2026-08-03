@@ -4,6 +4,11 @@ sidebar_position: 4
 
 # Rendering
 
+<div className="lesson-header">
+  <p className="lesson-kicker"><span className="streamline-icon streamline-icon--code" aria-hidden="true"></span> Reactivity / Rendering</p>
+  <p className="lesson-summary">Construct Roblox Instances declaratively, bind tracked state to properties, own events, and preserve identity across conditional and collection updates.</p>
+</div>
+
 ## Instance construction
 
 Roblox class names resolve lazily on a scope:
@@ -83,3 +88,9 @@ indexes as layout keys.
 
 `scope:Hydrate(instance, props)` reconciles an existing Instance. `Portal`
 renders owned children under a different parent while preserving scope cleanup.
+
+## In Crystal Run
+
+The [reactive HUD](./project-crystal-run) binds phase, timer, score, progress,
+and transient visibility directly to properties. Trace one pickup to see which
+bindings repaint and which parts of the tree remain untouched.

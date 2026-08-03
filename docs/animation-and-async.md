@@ -4,6 +4,11 @@ sidebar_position: 5
 
 # Animation and Async
 
+<div className="lesson-header">
+  <p className="lesson-kicker"><span className="streamline-icon streamline-icon--play" aria-hidden="true"></span> Reactivity / Time</p>
+  <p className="lesson-summary">Represent springs, tweens, transitions, and asynchronous work as scope-owned state instead of detached tasks and manual property loops.</p>
+</div>
+
 ## Springs
 
 ```lua
@@ -61,3 +66,9 @@ scope:Suspense(profile, {
 
 Async status contains `Status`, `Value`, and `Error`. Suspense accepts scoped
 Async wrappers and raw async state IDs while retaining branch ownership.
+
+## In Crystal Run
+
+The [HUD project](./project-crystal-run) includes a production extension that
+springs only the visual progress bar while keeping the authoritative score
+immediate. The distinction prevents animation state from becoming game state.

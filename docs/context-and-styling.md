@@ -4,6 +4,11 @@ sidebar_position: 6
 
 # Context and Styling
 
+<div className="lesson-header">
+  <p className="lesson-kicker"><span className="streamline-icon streamline-icon--book" aria-hidden="true"></span> Composition / Shared inputs</p>
+  <p className="lesson-summary">Share typed values, reusable styles, and registered constructors through composition while retaining one surrounding scope.</p>
+</div>
+
 ## Typed context
 
 ```lua
@@ -58,3 +63,9 @@ local pill = scope:StatusPill { Text = "Online" }
 
 Registered constructors compose with the same scope lifecycle as Roblox
 Instance constructors.
+
+## In Crystal Run
+
+The [HUD component](./project-crystal-run) receives its model and event hub as
+arguments, which makes ownership visible and previewing straightforward. Use
+context when those dependencies must cross several intermediate components.

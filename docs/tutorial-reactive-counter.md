@@ -6,9 +6,20 @@ description: Mount a Weave interface with Value, Computed, bindings, events, and
 
 # Tutorial: Build a Reactive Counter
 
-This tutorial mounts a counter whose label, doubled value, and progress bar
-all derive from one state write. Weave tracks those dependencies and updates
-only the affected bindings.
+<div className="lesson-header">
+  <p className="lesson-kicker"><span className="streamline-icon streamline-icon--code" aria-hidden="true"></span> Focused tutorial / Chapter 3</p>
+  <p className="lesson-summary">Mount a counter whose label, doubled value, and progress bar derive from one write, then follow Weave's dependency tracking from source state to affected bindings.</p>
+  <div className="lesson-progress" aria-label="Learn Weave progress: 60 percent"><span className="lesson-progress__fill lesson-progress__fill--60"></span></div>
+</div>
+
+<div className="lesson-goals">
+  <strong>What this feature proves</strong>
+  <ul>
+    <li>One source can drive several computed values without manual redraw code.</li>
+    <li>Instance bindings and events share the mount scope's lifetime.</li>
+    <li>The same graph scales into Crystal Run's timer, score, phase, and feedback HUD.</li>
+  </ul>
+</div>
 
 <figure className="tutorial-demo">
   <img className="tutorial-demo__motion" src="/weave-rbx/tutorials/weave-reactive-counter.gif" alt="Weave reactive counter propagating state in Roblox Studio" />
@@ -173,4 +184,10 @@ lifetime and prevents stale bindings after unmount.
 ## Next steps
 
 Continue with [Scopes and State](./scopes-and-state),
-[Rendering](./rendering), and [Animation and Async](./animation-and-async).
+[Rendering](./rendering), and [Animation and Async](./animation-and-async),
+then apply those systems to one complete screen.
+
+<div className="chapter-next">
+  <p><strong>Continue into the complete game.</strong><br />Build a responsive HUD from Flite's live round model and Echo's pickup events.</p>
+  <a href="./project-crystal-run">Build the Crystal Run HUD</a>
+</div>

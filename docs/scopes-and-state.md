@@ -4,6 +4,11 @@ sidebar_position: 3
 
 # Scopes and State
 
+<div className="lesson-header">
+  <p className="lesson-kicker"><span className="streamline-icon streamline-icon--identity" aria-hidden="true"></span> Reactivity / Ownership</p>
+  <p className="lesson-summary">Build a dependency graph whose Values, computed work, effects, Instances, and connections all share an explicit scope lifetime.</p>
+</div>
+
 ## Ownership first
 
 A scope owns every state, Instance, connection, effect, task, and child scope
@@ -92,3 +97,9 @@ end)
 
 Nested batches are supported. The outer batch flushes the affected dependency
 queue and property bindings once.
+
+## In Crystal Run
+
+The [reactive HUD](./project-crystal-run) treats Flite proxy fields as source
+state, derives labels and progress, then releases the complete graph through
+the `HudController` mount cleanup.

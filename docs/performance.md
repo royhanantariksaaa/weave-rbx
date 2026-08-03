@@ -4,6 +4,11 @@ sidebar_position: 8
 
 # Performance
 
+<div className="lesson-header">
+  <p className="lesson-kicker"><span className="streamline-icon streamline-icon--code" aria-hidden="true"></span> Production / Profiling</p>
+  <p className="lesson-summary">Measure graph fan-out, binding paints, Instance work, and animation channels before optimizing lower-level table operations.</p>
+</div>
+
 Weave organizes hot reactive paths around dense data and batched work:
 
 - State IDs index dense value, type, generation, signal, and dependency data.
@@ -27,3 +32,9 @@ allocation pressure are the concrete locality tools available to Weave.
 For a UI workload, measure dependency fan-out, binding count, Instance count,
 layout invalidation, and callback work. A table microbenchmark cannot predict a
 frame dominated by Roblox layout or text measurement.
+
+## Profile Crystal Run
+
+The [HUD verification pass](./project-crystal-run) gives a concrete graph:
+score updates should repaint score and progress, not phase, timer, or lifetime.
+Use that dependency expectation as a profiling assertion.
