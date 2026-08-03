@@ -29,7 +29,7 @@ module.exports = {
     {
       type: "category",
       label: "Production",
-      items: ["performance"],
+      items: ["testing-and-debugging", "performance"],
     },
     {
       type: "category",
