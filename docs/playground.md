@@ -2,6 +2,7 @@
 sidebar_position: 1.5
 title: Interactive Playground
 description: Edit Weave Value, Computed, Set, Update, and Batch programs and inspect their reactive propagation.
+hide_table_of_contents: true
 ---
 
 # Weave Playground
@@ -12,14 +13,16 @@ description: Edit Weave Value, Computed, Set, Update, and Batch programs and ins
   <div className="lesson-progress" aria-label="Learn Weave progress: 80 percent"><span className="lesson-progress__fill lesson-progress__fill--80"></span></div>
 </div>
 
-<div className="lesson-goals">
-  <strong>Use the lab to answer</strong>
-  <ul>
-    <li>Which tracked reads create dependency edges?</li>
-    <li>When does a batch reduce recomputation and binding work?</li>
-    <li>How should the Crystal Run HUD derive several views from one model?</li>
-  </ul>
+<div className="playground-runbook" aria-label="Weave playground workflow">
+  <div><span>01 / Baseline</span><strong>Run the graph</strong><p>Follow one Value through Computed state, invalidation, settlement, and a UI paint.</p></div>
+  <div><span>02 / Change</span><strong>Move one write</strong><p>Compare immediate writes with Batch and inspect exactly which work is coalesced.</p></div>
+  <div><span>03 / Transfer</span><strong>Mount it in Studio</strong><p>Replace the browser binding with a scope-owned Roblox Instance property.</p></div>
 </div>
+
+## Run the dependency baseline
+
+Select **Reactive counter** and run it unchanged. The source graph and runtime
+metrics should tell the same story from two angles.
 
 <div className="playground-actions">
   <a className="button button--primary" href="/weave-rbx/playground/" target="_blank" rel="noreferrer">Open full screen</a>
@@ -31,23 +34,86 @@ description: Edit Weave Value, Computed, Set, Update, and Batch programs and ins
   <iframe src="/weave-rbx/playground/" title="Weave reactive dependency playground" loading="eager"></iframe>
 </div>
 
-## A useful five-minute path
+<div className="lesson-goals">
+  <strong>Expected baseline</strong>
+  <ul>
+    <li>Count is the only writable source.</li>
+    <li>Doubled records one tracked dependency on Count.</li>
+    <li>Each settled source change invalidates the affected Computed value.</li>
+    <li>The UI binding paints only after the graph has settled.</li>
+  </ul>
+</div>
 
-1. Run **Reactive counter** and watch count invalidate doubled before the UI
-   binding paints.
-2. Compare the standalone Set with the two writes inside Batch. The batch
-   performs two writes but only one propagation flush.
-3. Move one Set outside the Batch block and compare recompute and paint counts.
-4. Try **Cart total** to see one Computed depend on two writable Values.
-5. After the run, use **Set +1** and **Batch +3** to keep the graph live.
+## Read graph and runtime together
 
-## Supported experiment syntax
+The left side is the editable state program. The right side separates source
+writes, dependency edges, recomputations, propagation flushes, and binding
+paints so that a convenient API does not hide its cost model.
 
-The editor recognizes numeric <code>scope:Value</code> declarations,
-<code>scope:Computed</code> arithmetic over tracked <code>Get()</code> reads,
-<code>Set</code>, <code>Update</code>, and <code>scope:Batch</code>. It rejects
-unsupported statements with a line number instead of pretending to execute
-arbitrary Luau.
+| What changes | What to inspect | What it proves |
+|---|---|---|
+| `count:Set(...)` | Source value, invalidations, and paints | One write settles immediately outside a batch. |
+| `count:Update(...)` | Previous and next source values | Update derives a write from the current value. |
+| Tracked `Get()` | Graph arrows into Computed nodes | Dependencies come from reads during evaluation. |
+| `scope:Batch(...)` | Writes versus propagation flushes | Several writes can settle through one outer flush. |
+
+## Complete three controlled experiments
+
+### 1. Break and restore a dependency
+
+Run **Reactive counter**, then remove the `count:Get()` read from the
+Computed declaration. The dependency edge disappears, so later Count writes no
+longer invalidate Doubled. Restore the read and verify that the edge returns.
+
+### 2. Measure the batch boundary
+
+Keep two Set calls inside Batch and record the write, recompute, flush, and
+paint counts. Move the second Set below the Batch block and run again. The
+final value is the same, but the unbatched program performs another settlement
+cycle.
+
+### 3. Expand the graph
+
+Select **Cart total**. Change quantity and unit price independently, then put
+both writes in one Batch. The Total node depends on both Values but should
+settle once for the combined update.
+
+## Transfer the graph to Roblox Studio
+
+The browser models the state scheduler. Studio adds a real Instance property
+binding and one scope-owned cleanup boundary:
+
+```lua title="StarterPlayerScripts/ReactiveCounter.client.luau"
+local cleanup = Weave.mount(playerGui, function(scope)
+    local count = scope:Value(0)
+    local doubled = scope:Computed(function()
+        return count:Get() * 2
+    end)
+
+    return scope:TextButton {
+        Text = scope:Computed(function()
+            return `Count {count:Get()} / Double {doubled:Get()}`
+        end),
+        [Weave.OnEvent("Activated")] = function()
+            count:Update(function(value)
+                return value + 1
+            end)
+        end,
+    }
+end)
+
+script.Destroying:Connect(cleanup)
+```
+
+<figure className="tutorial-demo playground-proof">
+  <img className="tutorial-demo__motion" src="/weave-rbx/tutorials/weave-reactive-counter.gif" alt="Weave state propagating into Roblox UI in Studio" />
+  <img className="tutorial-demo__still" src="/weave-rbx/tutorials/weave-reactive-counter.png" alt="Completed Weave reactive counter in Studio" />
+  <figcaption>The same dependency graph driving a real Roblox property binding.</figcaption>
+</figure>
+
+Use the [Reactive Counter tutorial](./tutorial-reactive-counter) for the full
+Explorer tree, complete interface, event binding, progress bar, batch example,
+cleanup behavior, and debugging checkpoints.
 
 :::note Browser model versus Roblox runtime
 The playground models dependency invalidation and batch settlement. Instance
@@ -55,9 +121,13 @@ creation, event ownership, and real property bindings are demonstrated in the
 recorded [Reactive Counter tutorial](./tutorial-reactive-counter).
 :::
 
-Continue with [Getting Started](./getting-started), then study
-[Scopes and State](./scopes-and-state), [Rendering](./rendering), and the
-[API overview](./api-overview).
+## Continue into the complete game
+
+Crystal Run hydrates one round model, then derives phase text, timer, score,
+collection progress, lifetime total, and pickup feedback from it. The
+[complete reactive HUD](./project-crystal-run) includes the full component,
+mount owner, propagation trace, server-free preview, multiplayer acceptance
+pass, and failure paths.
 
 <div className="chapter-next">
   <p><strong>Ready for a full reactive screen?</strong><br />Turn Flite's round model and Echo's event stream into Crystal Run's complete HUD.</p>
