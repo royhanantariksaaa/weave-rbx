@@ -52,3 +52,6 @@ end)
 ```
 
 Bindings and dependent computations observe the settled result once.
+
+Continue with [Build a Reactive Counter](./tutorial-reactive-counter) to
+connect state, computed values, Instance bindings, events, and unmount cleanup.
