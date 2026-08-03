@@ -16,6 +16,11 @@ only the affected bindings.
   <figcaption>One Value update invalidating a Computed value and its UI bindings.</figcaption>
 </figure>
 
+:::tip Experiment alongside the tutorial
+Open the [Weave Playground](./playground) to move writes in and out of Batch
+and watch recomputation and binding paint counts change immediately.
+:::
+
 ## Before you start
 
 Map Weave and its runtime dependencies as siblings:
