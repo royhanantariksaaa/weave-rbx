@@ -13,6 +13,7 @@
 -- Public API returns lightweight closures (getter/setter) instead of raw IDs.
 
 local Signal = require(game:GetService("ReplicatedStorage").Libraries.Echo)
+local Debug = require(script.Parent.Debug)
 
 local Engine = {}
 
@@ -589,6 +590,7 @@ function Engine._flushComputed(id: number)
     end
     if not Engine.Pending[id] and Engine.Initialized[id] then return end
     Engine.Pending[id] = false
+	Debug.Track("ComputedEvaluations")
     
     local callback = Engine.Computeds[id]
     local oldVal = Engine.Values[id]
@@ -653,10 +655,13 @@ function Engine.flush()
         return
     end
 
-    isFlushing = true
+	isFlushing = true
+	Debug.Track("SchedulerFlushes")
+	local flushStartedAt = if Debug.Enabled then os.clock() else 0
     local dirtyReadIndex = 1
     local computedReadIndex = 1
     local bindingReadIndex = 1
+	local computedEvaluations = 0
 
     local function scheduleDependentTree(sourceId: number)
         local stackCount = 1
@@ -701,6 +706,7 @@ function Engine.flush()
                 computedReadIndex += 1
                 scheduledComputeds[computedId] = nil
                 if Engine.Computeds[computedId] and Engine.Pending[computedId] then
+					computedEvaluations += 1
                     Engine._flushComputed(computedId)
                 end
             end
@@ -746,7 +752,31 @@ function Engine.flush()
         error(flushError, 2)
     end
 
-    table.clear(changedQueue)
+	local statesFlushed = changedQueueCount
+	if Debug.Enabled then
+		local flushMs = (os.clock() - flushStartedAt) * 1000
+		if flushMs >= Debug.SlowFlushThreshold then
+			local stats = {
+				flushMs = flushMs,
+				statesFlushed = statesFlushed,
+				iterations = computedEvaluations,
+			}
+			warn(string.format(
+				"[Weave] Slow reactive flush: %.2fms (%d states, %d computed evaluations)",
+				flushMs,
+				statesFlushed,
+				computedEvaluations
+			))
+			if Debug.OnSlowFlush then
+				local callbackSuccess, callbackError = pcall(Debug.OnSlowFlush, stats)
+				if not callbackSuccess then
+					warn("[Weave] Debug.OnSlowFlush failed: " .. tostring(callbackError))
+				end
+			end
+		end
+	end
+
+	table.clear(changedQueue)
     table.clear(pendingComputedQueue)
     table.clear(traversalStack)
     changedQueueCount = 0

@@ -8,7 +8,7 @@
 
 	@param state -- the state (or getter) to watch
 	@param callback (newValue) -> () -- invoked on each change
-	@return RBXScriptConnection -- disconnect to stop watching
+	@return State -- destroyable scope-owned computation
 ]=]
 
 local function resolveStateValue(state)
@@ -26,7 +26,7 @@ return function(_Scope, _Signal)
 		local isFirst = true
 		local lastVal = nil
 		
-		self.effect(function()
+		return self.effect(function()
 			local newVal = resolveStateValue(state)
 			if isFirst then
 				isFirst = false

@@ -12,11 +12,12 @@
 	@return () -> T -- read-only getter for the selected slice
 ]=]
 
+local Shared = require(script.Parent._shared)
+
 return function(_Scope, _Signal, _Value, _Mixins)
 	return function(self, state, selectorFn, equalsFn)
 		return self.computed(function()
-			local v = type(state) == "function" and state() or state
-			return selectorFn(v)
+			return selectorFn(Shared.read(state))
 		end, { equals = equalsFn })
 	end
 end

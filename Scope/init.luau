@@ -129,7 +129,7 @@ end
 function Scope.new(parentScope: any?)
 	local self = {
 		_trove = Trove.new(),
-		_components = {},
+		_components = setmetatable({}, { __index = parentScope and parentScope._components or {} }),
 		_context = setmetatable({}, { __index = parentScope and parentScope._context or {} }),
 	}
 
@@ -271,17 +271,24 @@ function Scope.new(parentScope: any?)
 		self._components[name] = componentFunc
 	end
 
+	local function resolveContextKey(key)
+		if type(key) == "table" and type(key._id) == "string" then
+			return key._id
+		end
+		return key
+	end
+
 	--[=[
 		Provides scoped context values.
 	]=]
 	self.Provide = function(...)
 		local key, value = stripScopeArg(...)
-		if type(key) == "table" then
+		if type(key) == "table" and type(key._id) ~= "string" and value == nil then
 			for ctxKey, ctxValue in key do
-				self._context[ctxKey] = ctxValue
+				self._context[resolveContextKey(ctxKey)] = ctxValue
 			end
 		else
-			self._context[key] = value
+			self._context[resolveContextKey(key)] = value
 		end
 	end
 

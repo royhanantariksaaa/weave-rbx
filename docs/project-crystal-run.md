@@ -414,11 +414,11 @@ changes.
 
 ## API trail
 
-- [Scopes and State](./scopes-and-state) for ownership and dependencies.
-- [Rendering](./rendering) for properties, events, and children.
-- [Animation and Async](./animation-and-async) for the progress extension.
-- [Performance](./performance) for batching and repaint measurement.
-- [Weave API map](./api-overview) for root, Scope, and State signatures.
+- [Scopes and State](/weave-rbx/docs/scopes-and-state/) for ownership and dependencies.
+- [Rendering](/weave-rbx/docs/rendering/) for properties, events, and children.
+- [Animation and Async](/weave-rbx/docs/animation-and-async/) for the progress extension.
+- [Performance](/weave-rbx/docs/performance/) for batching and repaint measurement.
+- [Weave API map](/weave-rbx/docs/api-overview/) for root, Scope, and State signatures.
 
 <div className="chapter-next">
   <p><strong>Final layer:</strong> add a composed lobby, settings panel, ready control, and round-results surface around the in-game HUD.</p>

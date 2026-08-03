@@ -104,8 +104,13 @@ function Shared.rebuildNode(nodeDef, Scope, parentScope, evaluateCallback)
 		local childScope = Scope.new(parentScope)
 		nodeDef._trove = childScope._trove
 		Engine.pushScope(childScope)
-		local result = evaluateCallback(childScope)
+		local success, result = pcall(evaluateCallback, childScope)
 		Engine.popScope()
+		if not success then
+			childScope:Destroy()
+			nodeDef._trove = nil
+			error(result, 0)
+		end
 		nodeDef._instances = Shared.normalizeResult(result)
 	end
 	nodeDef._changed:Fire(nodeDef._instances)
@@ -177,8 +182,12 @@ function Shared.reconcileCollection(nodeDef, Scope, parentScope, mapOrArray, isA
 		else
 			local childScope = Scope.new(parentScope)
 			Engine.pushScope(childScope)
-			local inst = renderFunc(childScope, key, val)
+			local success, inst = pcall(renderFunc, childScope, key, val)
 			Engine.popScope()
+			if not success then
+				childScope:Destroy()
+				error(inst, 0)
+			end
 			newInstanceMap[key] = inst
 			newTroveMap[key] = childScope._trove
 		end

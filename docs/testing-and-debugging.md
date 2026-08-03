@@ -36,7 +36,7 @@ The TestEZ specs are useful when your repository already has a TestEZ runner.
 The standalone smoke file needs no test framework and is the fastest way to
 check the complete package in Studio.
 
-## Run the 36-check Studio smoke suite
+## Run the Studio smoke suite
 
 Sync Weave and its Echo, Symbol, Trove, and Tween dependencies beneath
 `ReplicatedStorage.Libraries`. Run `tests/RuntimeSmoke.luau` through Studio's
@@ -58,7 +58,7 @@ The file is executable Script source and intentionally does not return a
 ModuleScript value. Do not `require` it. Start a fresh Studio test and expect:
 
 ```text
-[Weave RuntimeSmoke] PASS (36 checks)
+[Weave RuntimeSmoke] PASS (51 checks)
 ```
 
 The suite deliberately creates and destroys root state IDs, mounts Instances,
@@ -204,8 +204,8 @@ Before release, verify:
 | Narrow and wide viewport | No clipped controls or text overlap. |
 | Low-end device profile | Instance, layout, and callback work stay within the feature budget. |
 
-Use the [performance chapter](./performance) after correctness is established.
-For the complete composition, the [Crystal Run HUD](./project-crystal-run)
+Use the [performance chapter](/weave-rbx/docs/performance/) after correctness is established.
+For the complete composition, the [Crystal Run HUD](/weave-rbx/docs/project-crystal-run/)
 defines exact source-to-output expectations, teardown behavior, and a visual
 acceptance pass.
 

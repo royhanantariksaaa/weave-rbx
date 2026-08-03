@@ -7,7 +7,7 @@
 	for time-driven UI (cooldowns, tickers).
 
 	@param interval number -- seconds between increments
-	@return () -> number -- getter for the tick count
+	@return State -- scoped tick-count state
 ]=]
 
 local Helpers = require(script.Parent.Parent.Core.Helpers)
@@ -27,10 +27,10 @@ local function onTimerUpdate(pool, dt)
 	end
 end
 
-return function(_Scope, _Signal, Value)
+return function(_Scope, _Signal, _Value)
 	return function(self, interval)
-		local state = Value(0)
-		self._trove:Add(state)
+		assert(type(interval) == "number" and interval > 0, "Weave: Timer interval must be greater than zero")
+		local state, setState = self.value(0)
 
 		if not initialisedPool then
 			initialisedPool = true
@@ -39,6 +39,7 @@ return function(_Scope, _Signal, Value)
 
 		local timerData = {
 			state = state,
+			setState = setState,
 			interval = interval,
 			elapsed = 0,
 		}

@@ -12,10 +12,11 @@
 ]=]
 
 return function(_Scope, _Signal, TweenLib)
-	return function(_self, instance, steps)
+	return function(self, instance, steps)
 		local totalTime = 0
 		local controllers = {}
 		local pendingThreads = {}
+		local cancelled = false
 		for _, step in ipairs(steps) do
 			local delay, duration = step.Delay or 0, step.Duration or 0
 			local goals = { [step.Property] = step.To }
@@ -28,15 +29,19 @@ return function(_Scope, _Signal, TweenLib)
 			table.insert(pendingThreads, thread)
 			totalTime += delay + duration
 		end
-		return {
+		local controller = {
 			Cancel = function()
+				if cancelled then return end
+				cancelled = true
 				for _, t in ipairs(pendingThreads) do
-					task.cancel(t)
+					pcall(task.cancel, t)
 				end
 				for _, c in ipairs(controllers) do
 					c.Cancel()
 				end
 			end
 		}
+		self._trove:Add(controller.Cancel)
+		return controller
 	end
 end

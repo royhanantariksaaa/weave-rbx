@@ -22,8 +22,12 @@ return function(Scope, _Signal)
 		childScope:Provide(context._id, value)
 
 		Engine.pushScope(childScope)
-		local result = builderFunc(childScope)
+		local success, result = pcall(builderFunc, childScope)
 		Engine.popScope()
+		if not success then
+			childScope:Destroy()
+			error(result, 0)
+		end
 
 		return result
 	end

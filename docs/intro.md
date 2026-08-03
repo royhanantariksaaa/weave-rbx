@@ -43,9 +43,10 @@ slug: /intro
 - Context, styles, forms, gestures, accessibility, and utility hooks.
 - Batched propagation over a reverse dependency graph.
 
-Continue with [Getting Started](getting-started), use the
-[interactive playground](playground) to inspect propagation, then build
-Crystal Run's [complete reactive HUD](project-crystal-run).
+Continue with [Getting Started](/weave-rbx/docs/getting-started/), use the
+[interactive playground](/weave-rbx/docs/playground/) to inspect propagation,
+then build Crystal Run's
+[complete reactive HUD](/weave-rbx/docs/project-crystal-run/).
 
 :::info Companion library
 WeaveKit provides composed UI builders and production-ready components on top

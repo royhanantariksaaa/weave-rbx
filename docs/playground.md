@@ -111,21 +111,21 @@ script.Destroying:Connect(cleanup)
   <figcaption>The same dependency graph driving a real Roblox property binding.</figcaption>
 </figure>
 
-Use the [Reactive Counter tutorial](./tutorial-reactive-counter) for the full
+Use the [Reactive Counter tutorial](/weave-rbx/docs/tutorial-reactive-counter/) for the full
 Explorer tree, complete interface, event binding, progress bar, batch example,
 cleanup behavior, and debugging checkpoints.
 
 :::note Browser model versus Roblox runtime
 The playground models dependency invalidation and batch settlement. Instance
 creation, event ownership, and real property bindings are demonstrated in the
-recorded [Reactive Counter tutorial](./tutorial-reactive-counter).
+recorded [Reactive Counter tutorial](/weave-rbx/docs/tutorial-reactive-counter/).
 :::
 
 ## Continue into the complete game
 
 Crystal Run hydrates one round model, then derives phase text, timer, score,
 collection progress, lifetime total, and pickup feedback from it. The
-[complete reactive HUD](./project-crystal-run) includes the full component,
+[complete reactive HUD](/weave-rbx/docs/project-crystal-run/) includes the full component,
 mount owner, propagation trace, server-free preview, multiplayer acceptance
 pass, and failure paths.
 

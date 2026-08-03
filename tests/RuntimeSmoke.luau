@@ -11,6 +11,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Libraries = ReplicatedStorage:WaitForChild("Libraries")
 local Weave = require(Libraries:WaitForChild("Weave"))
 local Engine = require(Libraries.Weave.Core.Engine)
+local Debug = require(Libraries.Weave.Core.Debug)
 
 local checks = 0
 
@@ -38,7 +39,79 @@ setColonValue(5)
 equal(colonComputed(), 11, "scope colon state update")
 local colonSpring = apiScope:Spring(colonValue, 30, 1)
 equal(colonSpring(), 5, "scope colon Spring target")
+
+-- Scope utilities must unwrap scoped state objects, not pass wrappers through
+-- as ordinary tables.
+local doubled = apiScope:Selector(colonValue, function(value)
+	return value * 2
+end)
+local combined = apiScope:Combine(colonValue, dotValue, function(a, b)
+	return a + b
+end)
+local previous = apiScope:Previous(colonValue)
+equal(doubled(), 10, "Selector should unwrap a scoped state")
+equal(combined(), 11, "Combine should unwrap every scoped state")
+check(previous() == nil, "Previous should start without a prior value")
+
+setColonValue(7)
+equal(doubled(), 14, "Selector should react to scoped state changes")
+equal(combined(), 13, "Combine should react to scoped state changes")
+equal(previous(), 5, "Previous should retain the replaced value")
+
+local watchCalls = 0
+local watcher = apiScope:Watch(colonValue, function()
+	watchCalls += 1
+end)
+check(type(watcher) == "table" and type(watcher.Destroy) == "function",
+	"Watch should return a destroyable scoped computation")
+setColonValue(8)
+equal(watchCalls, 1, "Watch should run after a source change")
+watcher:Destroy()
+setColonValue(9)
+equal(watchCalls, 1, "destroying a Watch computation should stop callbacks")
+
+local Theme = Weave.createContext("default")
+apiScope:Provide(Theme, "provided")
+apiScope:RegisterComponent("Answer", function(_, props)
+	return props.value
+end)
+local contextChild = Weave.scope(apiScope)
+equal(contextChild:UseContext(Theme), "provided", "Provide should accept a context handle")
+equal(contextChild:Answer({ value = 42 }), 42, "child scopes should inherit registered components")
+contextChild:Destroy()
+
+check(not pcall(function()
+	apiScope:Timer(0)
+end), "Timer should reject a non-positive interval")
 apiScope:Destroy()
+
+-- Diagnostic callbacks must never poison the reactive scheduler, even when a
+-- consumer callback throws.
+local oldSlowFlushThreshold = Debug.SlowFlushThreshold
+Debug.Enabled = true
+Debug.SlowFlushThreshold = -1
+local slowFlushCalls = 0
+Debug.OnSlowFlush = function()
+	slowFlushCalls += 1
+	error("intentional debug callback failure")
+end
+
+local debugSource, setDebugSource = Weave.value(0)
+local debugProjection = Weave.computed(function()
+	return debugSource() + 1
+end)
+equal(debugProjection(), 1, "debug probe initial value")
+setDebugSource(1)
+equal(debugProjection(), 2, "debug callback failure should not poison the first flush")
+setDebugSource(2)
+equal(debugProjection(), 3, "debug callback failure should not poison later flushes")
+equal(slowFlushCalls, 2, "slow flush callback should run once per qualifying flush")
+
+Debug.OnSlowFlush = nil
+Debug.SlowFlushThreshold = oldSlowFlushThreshold
+Debug.Enabled = false
+Weave.destroy(debugProjection)
+Weave.destroy(debugSource)
 
 -- Batches should defer propagation, coalesce writes, preserve return values,
 -- and unwind correctly after a callback error.

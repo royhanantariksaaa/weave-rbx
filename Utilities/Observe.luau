@@ -8,7 +8,7 @@
 
 	@param state -- the state (or getter) to observe
 	@param callback (newValue) -> () -- invoked now and on each change
-	@return RBXScriptConnection -- disconnect to stop observing
+	@return State -- destroyable scope-owned computation
 ]=]
 
 local function resolveStateValue(state)

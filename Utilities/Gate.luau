@@ -11,9 +11,11 @@
 	@return () -> any -- getter for the gated value
 ]=]
 
+local Shared = require(script.Parent._shared)
+
 return function(_Scope, _Signal, _Value)
 	return function(self, sourceState, predicateFn)
-		local val = type(sourceState) == "function" and sourceState() or sourceState
+		local val = Shared.peek(sourceState)
 		local getGate, setGate = self.value(val)
 		
 		self.Observe(sourceState, function(newVal, oldVal)

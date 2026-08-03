@@ -28,7 +28,7 @@ description: Mount a Weave interface with Value, Computed, bindings, events, and
 </figure>
 
 :::tip Experiment alongside the tutorial
-Open the [Weave Playground](./playground) to move writes in and out of Batch
+Open the [Weave Playground](/weave-rbx/docs/playground/) to move writes in and out of Batch
 and watch recomputation and binding paint counts change immediately.
 :::
 
@@ -183,8 +183,8 @@ lifetime and prevents stale bindings after unmount.
 
 ## Next steps
 
-Continue with [Scopes and State](./scopes-and-state),
-[Rendering](./rendering), and [Animation and Async](./animation-and-async),
+Continue with [Scopes and State](/weave-rbx/docs/scopes-and-state/),
+[Rendering](/weave-rbx/docs/rendering/), and [Animation and Async](/weave-rbx/docs/animation-and-async/),
 then apply those systems to one complete screen.
 
 <div className="chapter-next">

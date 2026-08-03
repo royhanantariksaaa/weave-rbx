@@ -11,6 +11,8 @@
 	@return () -> T -- getter for the combined result
 ]=]
 
+local Shared = require(script.Parent._shared)
+
 return function(_Scope, _Signal, _Value, _Computed)
 	return function(self, ...)
 		local args = { ... }
@@ -20,7 +22,7 @@ return function(_Scope, _Signal, _Value, _Computed)
 		local comp = self.computed(function()
 			table.clear(values)
 			for i, s in ipairs(args) do
-				values[i] = type(s) == "function" and s() or s
+				values[i] = Shared.read(s)
 			end
 			return combiner(table.unpack(values))
 		end)

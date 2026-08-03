@@ -173,7 +173,7 @@ end)
 | `numberSequence` | `(keypoints) -> NumberSequence` | Build a NumberSequence from plain keypoint data. |
 | `colorSequence` | `(keypoints) -> ColorSequence` | Build a ColorSequence from plain keypoint data. |
 | `Components` | table | Built-in `Button`, `Flex`, `TextInput`, `Tooltip`, and `VirtualList`. |
-| `Debug` | `"overlay"?` | Enable or disable the client profiler overlay. |
+| `Debug` | boolean, `"overlay"`, or `nil` | Collect counters, mount the client profiler overlay, or disable diagnostics. |
 
 PascalCase aliases are retained for compatibility where listed. `effect`,
 `lazy`, and the sequence helpers are camelCase-only.
@@ -663,7 +663,7 @@ improvements available at this layer.
 
 Reference specs under `tests/*.spec.luau` use
 [TestEZ](https://github.com/roblox/testez). `tests/RuntimeSmoke.luau` is a
-standalone 36-check Studio suite covering dot/colon scope factories, batching,
+standalone 51-check Studio suite covering dot/colon scope factories, batching,
 callable animation states, dynamic dependencies,
 recycled state IDs, binding cleanup, async suspense, and animation-state
 propagation.
