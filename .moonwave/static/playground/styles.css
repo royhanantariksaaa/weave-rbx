@@ -663,3 +663,8 @@ button:disabled {
     transition-duration: 0.01ms !important;
   }
 }
+
+.model-note {
+  font-size: 0.8rem;
+  line-height: 1.55;
+}
