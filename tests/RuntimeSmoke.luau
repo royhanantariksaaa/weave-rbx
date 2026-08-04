@@ -227,3 +227,5 @@ end), "destroyed animation state should reject reads")
 
 parent:Destroy()
 print(`[Weave RuntimeSmoke] PASS ({checks} checks)`)
+
+return true

@@ -1,0 +1,75 @@
+---
+sidebar_position: 1
+slug: /intro
+title: Weave
+description: Learn where Weave fits and choose a path through the handbook.
+hide_title: true
+---
+
+<LessonHeader
+  title="Weave"
+  chapter="Introduction / Chapter 1"
+  summary="Weave is a scoped reactive UI runtime for Roblox. State, Instances, connections, effects, and animation resources live inside explicit lifecycle scopes, making cleanup part of the programming model."
+  progress={20}
+/>
+
+<GuideCallout title="By the end of this chapter" variant="success">
+  <ul>
+    <li>Recognize Weave's state, dependency, rendering, and ownership model.</li>
+    <li>Choose a focused lesson, graph lab, or complete game track.</li>
+    <li>Know when to use Weave directly and when to reach for WeaveKit.</li>
+  </ul>
+</GuideCallout>
+
+<DemoFrame
+  title="Reactive counter in Studio"
+  description="One source write propagating through Computed state into focused UI bindings."
+  motionSrc="/tutorials/weave-reactive-counter.gif"
+  stillSrc="/tutorials/weave-reactive-counter.png"
+  alt="A Weave Value propagating through Computed state and Roblox UI bindings"
+/>
+
+## Choose your path
+
+<LearningPath items={[
+  {
+    eyebrow: "01 / Experiment",
+    title: "Inspect the graph",
+    description: "Edit Values, Computed state, and batches with live propagation metrics.",
+    href: "/docs/playground",
+  },
+  {
+    eyebrow: "02 / Focus",
+    title: "Mount a counter",
+    description: "Learn state, bindings, events, and cleanup in one contained Studio feature.",
+    href: "/docs/tutorial-reactive-counter",
+  },
+  {
+    eyebrow: "03 / Complete game",
+    title: "Build the Crystal HUD",
+    description: "Render round state, score progress, timer, and pickup feedback.",
+    href: "/docs/project-crystal-run",
+  },
+  {
+    eyebrow: "04 / Reference",
+    title: "Explore the runtime",
+    description: "Find state types, rendering primitives, animation, context, and exact signatures.",
+    href: "/docs/api-overview",
+  },
+]} />
+
+## What Weave provides
+
+- Mutable, computed, derived, reducer, async, spring, and tween state.
+- Declarative Instance construction with reactive property bindings.
+- Conditional, collection, portal, suspense, and transition primitives.
+- Context, styles, forms, gestures, accessibility, and utility hooks.
+- Batched propagation over a reverse dependency graph.
+
+Continue with [Getting Started](getting-started), use the
+[interactive playground](playground) to inspect propagation, then build
+Crystal Run's [complete reactive HUD](project-crystal-run).
+
+<GuideCallout title="Companion library">
+  <p>WeaveKit provides composed UI builders and production-ready components on top of Weave. Weave itself remains the lower-level runtime.</p>
+</GuideCallout>

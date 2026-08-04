@@ -1,94 +1,97 @@
 ---
 title: Weave Handbook
-description: Learn scoped reactive Roblox UI through guided chapters, dependency experiments, and API reference.
+description: Learn scoped reactive Roblox UI through guided chapters, dependency experiments, and exact API reference.
 hide_table_of_contents: true
 ---
 
-<main className="handbook-home handbook-home--weave">
-  <header className="handbook-hero">
-    <div className="handbook-hero__copy">
-      <p className="handbook-kicker"><span className="streamline-icon streamline-icon--identity" aria-hidden="true"></span> The Weave Living Handbook</p>
-      <h1>Weave</h1>
-      <p className="handbook-deck">Reactive Roblox interfaces with ownership built into every update.</p>
-      <p className="handbook-intro">Learn how values become dependencies, dependencies become focused UI updates, and one scope gives the whole graph a predictable lifetime.</p>
-      <div className="handbook-actions">
-        <a className="button button--primary" href="/weave-rbx/docs/intro/"><span className="streamline-icon streamline-icon--book" aria-hidden="true"></span> Start chapter one</a>
-        <a className="button button--secondary" href="/weave-rbx/playground/"><span className="streamline-icon streamline-icon--play" aria-hidden="true"></span> Inspect a live graph</a>
-      </div>
-    </div>
+import { LibraryHome } from "@site/src/components/docs/library-home"
 
-    <figure className="handbook-proof">
-      <img className="tutorial-demo__motion" src="/weave-rbx/tutorials/weave-reactive-counter.gif" alt="A Weave reactive counter updating in Roblox Studio" />
-      <img className="tutorial-demo__still" src="/weave-rbx/tutorials/weave-reactive-counter.png" alt="Completed Weave reactive counter" />
-      <figcaption><span>Studio proof 01</span> One source write updating derived state and only the affected bindings.</figcaption>
-    </figure>
-  </header>
-
-  <section className="handbook-project-band">
-    <div><p className="handbook-kicker"><span className="streamline-icon streamline-icon--code" aria-hidden="true"></span> Complete game track</p><h2>Build Crystal Run's reactive HUD.</h2><p>Render authoritative phase, timer, score, progress, lifetime totals, and confirmed pickup feedback without manual redraw code.</p></div>
-    <a className="button" href="/weave-rbx/docs/project-crystal-run/">Open layer 3 of 4</a>
-  </section>
-
-  <section className="handbook-section handbook-section--route">
-    <div className="handbook-section__heading">
-      <p className="handbook-kicker">Guided route</p>
-      <h2>From owned state to reactive interface</h2>
-      <p>Build the dependency graph in layers, then watch the runtime settle it.</p>
-    </div>
-
-    <div className="chapter-route">
-      <a className="chapter-route__item" href="/weave-rbx/docs/intro/">
-        <span className="chapter-route__number">01</span>
-        <span><strong>Think in scopes</strong><small>See ownership as the boundary around state, UI, and cleanup.</small></span>
-        <span className="chapter-route__action">Read</span>
-      </a>
-      <a className="chapter-route__item" href="/weave-rbx/docs/getting-started/">
-        <span className="chapter-route__number">02</span>
-        <span><strong>Mount a reactive view</strong><small>Create Value, Computed state, a binding, and an event.</small></span>
-        <span className="chapter-route__action">Build</span>
-      </a>
-      <a className="chapter-route__item" href="/weave-rbx/docs/tutorial-reactive-counter/">
-        <span className="chapter-route__number">03</span>
-        <span><strong>Build the complete counter</strong><small>Connect state propagation to real Roblox Instances.</small></span>
-        <span className="chapter-route__action">Tutorial</span>
-      </a>
-      <a className="chapter-route__item" href="/weave-rbx/docs/playground/">
-        <span className="chapter-route__number">04</span>
-        <span><strong>Probe the graph</strong><small>Compare individual writes with batched settlement.</small></span>
-        <span className="chapter-route__action">Practice</span>
-      </a>
-    </div>
-  </section>
-
-  <section className="handbook-section handbook-section--model">
-    <div className="handbook-section__heading">
-      <p className="handbook-kicker">Mental model</p>
-      <h2>Reads form edges. Writes move through them.</h2>
-    </div>
-    <div className="concept-flow concept-flow--weave" aria-label="Weave reactive dependency graph">
-      <div className="concept-flow__node"><span>Writable source</span><strong>count:Set(4)</strong></div>
-      <span className="concept-flow__connector">invalidates</span>
-      <div className="concept-flow__node"><span>Derived node</span><strong>doubled:Get()</strong></div>
-      <span className="concept-flow__connector">paints</span>
-      <div className="concept-flow__stack"><span>Text binding</span><span>Progress binding</span><span>Tracked effect</span></div>
-    </div>
-    <p className="handbook-model-note">The scope owns every node and edge, so cleanup removes the complete graph.</p>
-  </section>
-
-  <section className="handbook-section handbook-section--modes">
-    <div className="handbook-section__heading">
-      <p className="handbook-kicker">Choose a thread</p>
-      <h2>Ownership, rendering, or motion</h2>
-    </div>
-    <div className="handbook-modes">
-      <a href="/weave-rbx/docs/scopes-and-state/"><span>Core guide</span><strong>Scopes and state</strong><small>Values, computed nodes, reducers, effects, and batching.</small></a>
-      <a href="/weave-rbx/docs/rendering/"><span>UI guide</span><strong>Rendering</strong><small>Instances, bindings, children, collections, and portals.</small></a>
-      <a href="/weave-rbx/docs/api-overview/"><span>Reference</span><strong>Open the API map</strong><small>Navigate the root module, Scope, and State surfaces.</small></a>
-    </div>
-  </section>
-
-  <section className="handbook-reference-band">
-    <div><p className="handbook-kicker">Building a particular interaction?</p><h2>Search the runtime by concept or signature.</h2></div>
-    <a className="button button--secondary" href="/weave-rbx/api/Weave/">Browse Weave API</a>
-  </section>
-</main>
+<LibraryHome
+  name="Weave"
+  strapline="Reactive Roblox interfaces with ownership built into every update."
+  introduction="Learn how values become dependencies, dependencies become focused UI updates, and one scope gives the entire graph a predictable lifetime."
+  demoMotion="/tutorials/weave-reactive-counter.gif"
+  demoStill="/tutorials/weave-reactive-counter.png"
+  demoDescription="One source write updating derived state and only the affected Roblox UI bindings."
+  project={{
+    eyebrow: "Complete game track / Layer 3 of 4",
+    title: "Build Crystal Run's reactive HUD.",
+    description: "Render authoritative phase, timer, score, progress, lifetime totals, and confirmed pickup feedback without manual redraw code.",
+    href: "/docs/project-crystal-run",
+    action: "Build the HUD",
+  }}
+  routeTitle="From owned state to a reactive interface"
+  routeDescription="Build the dependency graph in layers, then watch Weave settle only the work that changed."
+  routes={[
+    {
+      number: "01",
+      label: "Read",
+      title: "Think in scopes",
+      description: "Treat ownership as the boundary around state, UI, effects, and cleanup.",
+      href: "/docs/intro",
+    },
+    {
+      number: "02",
+      label: "Build",
+      title: "Mount a reactive view",
+      description: "Create a Value, Computed state, property binding, and event.",
+      href: "/docs/getting-started",
+    },
+    {
+      number: "03",
+      label: "Tutorial",
+      title: "Build the complete counter",
+      description: "Connect dependency propagation to real Roblox Instances.",
+      href: "/docs/tutorial-reactive-counter",
+    },
+    {
+      number: "04",
+      label: "Practice",
+      title: "Probe the graph",
+      description: "Compare individual writes with batched settlement in the live lab.",
+      href: "/docs/playground",
+    },
+  ]}
+  modelTitle="Reads form edges; writes move through them"
+  modelDescription="Weave tracks which derived nodes and bindings read each source, then updates only the affected branch under one scope."
+  modelSteps={[
+    {
+      eyebrow: "Source",
+      title: "Write owned state",
+      description: "A Value records the new fact and invalidates dependents that previously read it.",
+    },
+    {
+      eyebrow: "Derive",
+      title: "Recompute focused nodes",
+      description: "Computed state refreshes lazily and rebuilds dependency edges from the reads it performs.",
+    },
+    {
+      eyebrow: "Render",
+      title: "Patch affected properties",
+      description: "Bindings update the Roblox Instances they own, while unrelated UI remains untouched.",
+    },
+  ]}
+  threads={[
+    {
+      icon: "identity",
+      title: "Scopes and state",
+      description: "Values, computed nodes, reducers, effects, batching, and cleanup.",
+      href: "/docs/scopes-and-state",
+      action: "Learn reactivity",
+    },
+    {
+      icon: "code",
+      title: "Rendering",
+      description: "Instances, property bindings, children, collections, and portals.",
+      href: "/docs/rendering",
+      action: "Build interfaces",
+    },
+    {
+      icon: "book",
+      title: "API reference",
+      description: "Generated root, Scope, State, animation, context, and utility signatures.",
+      href: "/api/Weave",
+      action: "Browse the API",
+    },
+  ]}
+/>
