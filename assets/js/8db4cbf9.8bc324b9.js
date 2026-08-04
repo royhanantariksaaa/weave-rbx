@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkweave_documentation||=[]).push([[2157],{6789(e){e.exports=JSON.parse('[{"value":"Functions","id":"functions","level":2},{"value":".Refresh","id":"Refresh","level":3}]')}}]);

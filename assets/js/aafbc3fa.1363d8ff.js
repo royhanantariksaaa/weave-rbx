@@ -1,0 +1,1 @@
+"use strict";(globalThis.webpackChunkweave_documentation||=[]).push([[1036],{58626(e){e.exports=JSON.parse('[{"value":"Functions","id":"functions","level":2},{"value":":Get","id":"Get","level":3},{"value":":Set","id":"Set","level":3}]')}}]);

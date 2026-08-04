@@ -1,1 +1,0 @@
-"use strict";(self.webpackChunkdocs=self.webpackChunkdocs||[]).push([[809],{76544:e=>{e.exports=JSON.parse('[{"value":"Properties","id":"properties","level":2},{"value":"Delta","id":"Delta","level":3},{"value":"IsDragging","id":"IsDragging","level":3},{"value":"Position","id":"Position","level":3}]')}}]);
