@@ -23,8 +23,11 @@ return function(Scope, Signal)
 			local alpha, setAlpha = childScope.value(0)
 			local inst = renderFn(childScope, item, index, alpha)
 
-			task.delay(index * delay, function()
+			local delayedStart = task.delay(index * delay, function()
 				setAlpha(1)
+			end)
+			childScope._trove:Add(function()
+				pcall(task.cancel, delayedStart)
 			end)
 
 			return inst

@@ -4,8 +4,30 @@
     "$className": "DataModel",
     "ReplicatedStorage": {
       "Libraries": {
+        "$className": "Folder",
         "Weave": {
-          "$path": "."
+          "$path": "src",
+          "Components": {
+            "$path": "Components"
+          },
+          "Core": {
+            "$path": "Core"
+          },
+          "Rendering": {
+            "$path": "Rendering"
+          },
+          "Scope": {
+            "$path": "Scope"
+          },
+          "States": {
+            "$path": "States"
+          },
+          "Types": {
+            "$path": "Types"
+          },
+          "Utilities": {
+            "$path": "Utilities"
+          }
         }
       }
     }

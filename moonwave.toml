@@ -1,0 +1,85 @@
+title = "Weave"
+gitRepoUrl = "https://github.com/royhanantariksaaa/weave-rbx"
+gitSourceBranch = "main"
+changelog = false
+classOrder = [
+  "Weave",
+  "Scope",
+  "State",
+  "AnimationState",
+  "AsyncResult",
+  "Context",
+  "Ref",
+  "LazyRef",
+  "Components",
+  "Form",
+  "Store",
+  "Resource",
+  "History",
+  "Queue",
+  "DragState",
+  "GestureState",
+  "FloatState",
+  "AnimationController",
+  "LayoutController",
+]
+
+[home]
+enabled = true
+includeReadme = false
+
+[docusaurus]
+organizationName = "royhanantariksaaa"
+projectName = "weave-rbx"
+url = "https://royhanantariksaaa.github.io"
+baseUrl = "/weave-rbx/"
+tagline = "Reactive Roblox UI with explicit ownership."
+favicon = "/mark.png"
+onBrokenLinks = "warn"
+onBrokenMarkdownLinks = "warn"
+
+[[navbar.items]]
+to = "docs/playground"
+label = "Playground"
+position = "left"
+
+[[navbar.items]]
+href = "https://royhanantariksaaa.github.io/echo-rbx/"
+label = "Echo"
+position = "right"
+
+[[navbar.items]]
+href = "https://royhanantariksaaa.github.io/weavekit-rbx/"
+label = "WeaveKit"
+position = "right"
+
+[[navbar.items]]
+href = "https://royhanantariksaaa.github.io/flite-rbx/"
+label = "Flite"
+position = "right"
+
+[footer]
+style = "dark"
+copyright = "Weave documentation. Built with Moonwave and Docusaurus."
+
+[[footer.links]]
+title = "Libraries"
+
+[[footer.links.items]]
+label = "Echo"
+href = "https://royhanantariksaaa.github.io/echo-rbx/"
+
+[[footer.links.items]]
+label = "WeaveKit"
+href = "https://royhanantariksaaa.github.io/weavekit-rbx/"
+
+[[footer.links.items]]
+label = "Flite"
+href = "https://royhanantariksaaa.github.io/flite-rbx/"
+
+[[footer.links]]
+title = "Credits"
+
+[[footer.links.items]]
+label = "Streamline Core icons (CC BY 4.0)"
+href = "https://streamlinehq.com"

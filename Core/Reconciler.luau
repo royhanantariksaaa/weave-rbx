@@ -91,7 +91,28 @@ local function applyProperty(instance, prop, value, trove)
                 binds = {}
                 Engine.Bindings[stateId] = binds
             end
-            table.insert(binds, { instance = instance, prop = prop })
+            local binding = {
+                instance = instance,
+                prop = prop,
+                index = #binds + 1,
+            }
+            binds[binding.index] = binding
+            trove:Add(function()
+                local currentBindings = Engine.Bindings[stateId]
+                local index = binding.index
+                if not currentBindings or currentBindings[index] ~= binding then
+                    return
+                end
+
+                local lastIndex = #currentBindings
+                local lastBinding = currentBindings[lastIndex]
+                currentBindings[index] = lastBinding
+                currentBindings[lastIndex] = nil
+                if index ~= lastIndex then
+                    lastBinding.index = index
+                end
+                binding.instance = nil :: any
+            end)
         end
         instance[prop] = getStateValue(value)
     else
@@ -126,15 +147,18 @@ local function applyChildren(instance, children, trove)
                 applyChildren(instance, child, trove)
             elseif nodeType == WeaveTypes.NodeType.Rendering then
                 local currentInstances = {}
+                local nextInstanceSet = {}
                 local function hydrate(newInstances)
-                    for _, inst in ipairs(currentInstances) do
-                        if not table.find(newInstances, inst) then
-                            inst.Parent = nil
-                        end
-                    end
+                    table.clear(nextInstanceSet)
                     for _, inst in ipairs(newInstances) do
+                        nextInstanceSet[inst] = true
                         if inst.Parent ~= instance then
                             inst.Parent = instance
+                        end
+                    end
+                    for _, inst in ipairs(currentInstances) do
+                        if not nextInstanceSet[inst] then
+                            inst.Parent = nil
                         end
                     end
                     currentInstances = newInstances

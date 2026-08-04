@@ -12,6 +12,7 @@
 ]=]
 
 local RunService = game:GetService("RunService")
+local Shared = require(script.Parent._shared)
 
 return function(_Scope, _Signal)
 	return function(self, scrollState, layersSpec)
@@ -19,7 +20,7 @@ return function(_Scope, _Signal)
 		-- For simplicity, if number, we assume vertical scrolling (Y).
 
 		local function updateParallax()
-			local scrollVal = type(scrollState) == "function" and scrollState() or scrollState or 0
+			local scrollVal = Shared.peek(scrollState) or 0
 			local scrollX = 0
 			local scrollY = 0
 

@@ -10,6 +10,8 @@
 	@return () -> any -- getter for the prior value
 ]=]
 
+local Shared = require(script.Parent._shared)
+
 return function(_Scope, _Signal, _Value)
 	return function(self, state)
 		local current = nil
@@ -17,11 +19,10 @@ return function(_Scope, _Signal, _Value)
 		local prev, setPrev = self.value(nil)
 		
 		self.effect(function()
-			local newVal = type(state) == "function" and state() or state
+			local newVal = Shared.read(state)
 			if isFirst then
 				isFirst = false
 				current = newVal
-				setPrev(current)
 				return
 			end
 			setPrev(current)

@@ -13,19 +13,21 @@
 -- Public API returns lightweight closures (getter/setter) instead of raw IDs.
 
 local Signal = require(game:GetService("ReplicatedStorage").Libraries.Echo)
+local Debug = require(script.Parent.Debug)
 
 local Engine = {}
 
 -- ━━ 1. Entity Allocator ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 local nextStateId = 1
-local freeIds = {}
+local freeIds = {} :: { number }
+local stateGenerations = {} :: { [number]: number }
 
 --[=[
 	Allocates a new internal state id.
 	@return number
 ]=]
 function Engine.newState(): number
-    local id
+    local id: number
     local nFree = #freeIds
     if nFree > 0 then
         id = freeIds[nFree]
@@ -34,16 +36,20 @@ function Engine.newState(): number
         id = nextStateId
         nextStateId += 1
     end
+    if stateGenerations[id] == nil then
+        stateGenerations[id] = 1
+    end
     return id
 end
 
 -- ━━ 2. Struct of Arrays ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 Engine.Values       = {} :: { [number]: any }
 Engine.Changed      = {} :: { [number]: boolean }
-Engine.Bindings     = {} :: { [number]: { { instance: Instance, prop: string } } }
+Engine.Bindings     = {} :: { [number]: { { instance: Instance, prop: string, index: number } } }
 Engine.StateTypes   = {} :: { [number]: string }
 
 Engine.Dependencies = {} :: { [number]: { number } }
+Engine.Sources      = {} :: { [number]: { number } }
 Engine.Computeds    = {} :: { [number]: (...any) -> any }
 Engine.ComputedOpts = {} :: { [number]: { equals: ((any, any) -> boolean)? }? }
 Engine.Initialized  = {} :: { [number]: boolean }
@@ -55,26 +61,72 @@ Engine.Reducers     = {} :: { [number]: (any, any) -> any }
 Engine.Threads      = {} :: { [number]: thread }
 Engine.Signals      = {} :: { [number]: any }
 
+-- Dense reusable queues keep mutation and propagation work proportional to
+-- the affected graph instead of scanning every allocated state.
+local changedQueue = {} :: { number }
+local changedQueueCount = 0
+local pendingComputedQueue = {} :: { number }
+local pendingComputedCount = 0
+local scheduledComputeds = {} :: { [number]: boolean }
+local traversalStack = {} :: { number }
+
+-- Adjacency metadata supports O(1) edge insertion/removal while preserving
+-- Engine.Dependencies as the public dense-array view.
+local dependentPositions = {} :: { [number]: { [number]: number } }
+local sourceSets = {} :: { [number]: { [number]: number } }
+local scratchSources = {} :: { [number]: { number } }
+local scratchSourceSets = {} :: { [number]: { [number]: number } }
+
+local batchDepth = 0
+local isFlushing = false
+local evaluatingComputeds = {} :: { [number]: boolean }
+
 -- ━━ 3. Accessor Registry ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 -- Weak-key map: getter closure → entity ID
 -- This lets the Reconciler, peek(), destroy() etc resolve closures to IDs
 Engine.AccessorToId = setmetatable({}, { __mode = "k" }) :: { [any]: number }
+local accessorGenerations = setmetatable({}, { __mode = "k" }) :: { [any]: number }
 
--- Resolve any accessor (closure, integer, or animation object) to an entity ID
+local function assertAlive(id: number, generation: number?)
+    if Engine.StateTypes[id] == nil
+        or (generation ~= nil and stateGenerations[id] ~= generation)
+    then
+        error("Weave: attempted to use a destroyed state", 3)
+    end
+end
+
+function Engine.getGeneration(id: number): number?
+    return stateGenerations[id]
+end
+
+function Engine.isAlive(id: number, generation: number): boolean
+    return Engine.StateTypes[id] ~= nil and stateGenerations[id] == generation
+end
+
+-- Resolve a public accessor (closure or state object) to an entity ID. Raw
+-- numbers are ordinary application values and must never alias internal IDs.
 --[=[
 	Resolves a state accessor or raw id to its internal id.
 	@param accessor State accessor.
 	@return number?
 ]=]
 function Engine.resolveId(accessor: any): number?
-    if type(accessor) == "number" then
-        return accessor
-    end
     if type(accessor) == "function" then
-        return Engine.AccessorToId[accessor]
+        local id = Engine.AccessorToId[accessor]
+        local generation = accessorGenerations[accessor]
+        if id and generation == stateGenerations[id] and Engine.StateTypes[id] ~= nil then
+            return id
+        end
+        return nil
     end
-    if type(accessor) == "table" and accessor._id then
-        return accessor._id
+    if type(accessor) == "table" and type(accessor._id) == "number" then
+        local id = accessor._id
+        local generation = accessor._generation
+        if Engine.StateTypes[id] ~= nil
+            and (generation == nil or generation == stateGenerations[id])
+        then
+            return id
+        end
     end
     return nil
 end
@@ -86,13 +138,15 @@ end
 	@return (() -> any, (any) -> ())
 ]=]
 function Engine.createAccessor(id: number): ((() -> any), (any) -> ())
+    local generation = stateGenerations[id]
     local getter = function()
-        return Engine.get(id)
+        return Engine.get(id, generation)
     end
     local setter = function(newValue: any)
-        Engine.set(id, newValue)
+        Engine.set(id, newValue, generation)
     end
     Engine.AccessorToId[getter] = id
+    accessorGenerations[getter] = generation
     return getter, setter
 end
 
@@ -103,10 +157,12 @@ end
 	@return () -> any
 ]=]
 function Engine.createReadAccessor(id: number): () -> any
+    local generation = stateGenerations[id]
     local getter = function()
-        return Engine.get(id)
+        return Engine.get(id, generation)
     end
     Engine.AccessorToId[getter] = id
+    accessorGenerations[getter] = generation
     return getter
 end
 
@@ -114,11 +170,104 @@ end
 local activeObserverIds = {}
 local observerStackSize = 0
 
+local function addDependent(sourceId: number, observerId: number)
+    local positions = dependentPositions[sourceId]
+    if positions and positions[observerId] then
+        return
+    end
+
+    local dependents = Engine.Dependencies[sourceId]
+    if not dependents then
+        dependents = {}
+        Engine.Dependencies[sourceId] = dependents
+    end
+    if not positions then
+        positions = {}
+        dependentPositions[sourceId] = positions
+    end
+
+    local index = #dependents + 1
+    dependents[index] = observerId
+    positions[observerId] = index
+end
+
+local function removeDependent(sourceId: number, observerId: number)
+    local dependents = Engine.Dependencies[sourceId]
+    local positions = dependentPositions[sourceId]
+    local index = positions and positions[observerId]
+    if not dependents or not positions or not index then
+        return
+    end
+
+    local lastIndex = #dependents
+    local lastObserverId = dependents[lastIndex]
+    dependents[index] = lastObserverId
+    dependents[lastIndex] = nil
+    positions[observerId] = nil
+
+    if index ~= lastIndex then
+        positions[lastObserverId] = index
+    end
+    if lastIndex == 1 then
+        Engine.Dependencies[sourceId] = nil
+        dependentPositions[sourceId] = nil
+    end
+end
+
+local function prepareDependencyCollection(computedId: number)
+    local sources = scratchSources[computedId]
+    if not sources then
+        sources = {}
+        scratchSources[computedId] = sources
+    else
+        table.clear(sources)
+    end
+
+    local sourcesSet = scratchSourceSets[computedId]
+    if not sourcesSet then
+        sourcesSet = {}
+        scratchSourceSets[computedId] = sourcesSet
+    else
+        table.clear(sourcesSet)
+    end
+end
+
+local function commitDependencies(computedId: number)
+    local previousSources = Engine.Sources[computedId]
+    local previousSet = sourceSets[computedId]
+    local nextSources = scratchSources[computedId] or {}
+    local nextSet = scratchSourceSets[computedId] or {}
+
+    if previousSources then
+        for _, sourceId in previousSources do
+            if not nextSet[sourceId] then
+                removeDependent(sourceId, computedId)
+            end
+        end
+    end
+    for _, sourceId in nextSources do
+        if not previousSet or not previousSet[sourceId] then
+            addDependent(sourceId, computedId)
+        end
+    end
+
+    Engine.Sources[computedId] = nextSources
+    sourceSets[computedId] = nextSet
+
+    local reusableSources = previousSources or {}
+    local reusableSet = previousSet or {}
+    table.clear(reusableSources)
+    table.clear(reusableSet)
+    scratchSources[computedId] = reusableSources
+    scratchSourceSets[computedId] = reusableSet
+end
+
 --[=[
 	Pushes an active observer.
 	@param computedId Computed state id.
 ]=]
 function Engine.pushObserver(computedId: number)
+    prepareDependencyCollection(computedId)
     observerStackSize += 1
     activeObserverIds[observerStackSize] = computedId
 end
@@ -134,13 +283,12 @@ end
 local function trackDependency(sourceId: number)
     if observerStackSize > 0 then
         local observerId = activeObserverIds[observerStackSize]
-        local deps = Engine.Dependencies[sourceId]
-        if not deps then
-            deps = {}
-            Engine.Dependencies[sourceId] = deps
-        end
-        if not table.find(deps, observerId) then
-            table.insert(deps, observerId)
+        local sourcesSet = scratchSourceSets[observerId]
+        if sourcesSet and not sourcesSet[sourceId] then
+            local sources = scratchSources[observerId]
+            local sourceIndex = #sources + 1
+            sources[sourceIndex] = sourceId
+            sourcesSet[sourceId] = sourceIndex
         end
     end
 end
@@ -177,6 +325,53 @@ function Engine.getCurrentScope(): any?
     return nil
 end
 
+local function markChanged(id: number)
+    if Engine.Changed[id] then
+        return
+    end
+    Engine.Changed[id] = true
+    changedQueueCount += 1
+    changedQueue[changedQueueCount] = id
+end
+
+--[=[
+	Begins a nested mutation batch. Values remain immediately readable while
+	computed propagation and Instance binding updates wait for the outer batch.
+]=]
+function Engine.beginBatch()
+    batchDepth += 1
+end
+
+--[=[
+	Ends a mutation batch and flushes when the outermost batch closes.
+]=]
+function Engine.endBatch()
+    assert(batchDepth > 0, "Engine.endBatch called without a matching beginBatch")
+    batchDepth -= 1
+    if batchDepth == 0 then
+        Engine.flush()
+    end
+end
+
+--[=[
+	Runs a callback inside a mutation batch and returns all callback results.
+	@param fn Callback containing state mutations.
+	@return ...any
+]=]
+function Engine.batch(fn: () -> any): any
+    Engine.beginBatch()
+    local results = table.pack(pcall(fn))
+    local flushOk, flushError = pcall(Engine.endBatch)
+
+    if not results[1] then
+        error(results[2], 2)
+    end
+    if not flushOk then
+        error(flushError, 2)
+    end
+    return table.unpack(results, 2, results.n)
+end
+
 -- ━━ 5. Core Read/Write Functions ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 --[=[
@@ -184,7 +379,8 @@ end
 	@param id Internal state id.
 	@return any
 ]=]
-function Engine.get(id: number): any
+function Engine.get(id: number, generation: number?): any
+    assertAlive(id, generation)
     if Engine.Computeds[id] then
         local stateType = Engine.StateTypes[id]
         if stateType == "Derived" and Engine.Overrides[id] and Engine.Initialized[id] then
@@ -199,7 +395,7 @@ end
 
 --[=[
 	Reads the current value without dependency tracking.
-	@param accessorOrId State accessor or internal id.
+	@param accessorOrId State accessor or wrapper.
 	@return any
 ]=]
 function Engine.peek(accessorOrId: any): any
@@ -215,7 +411,8 @@ end
 	@param id Internal state id.
 	@param newValue Value to write.
 ]=]
-function Engine.set(id: number, newValue: any)
+function Engine.set(id: number, newValue: any, generation: number?)
+    assertAlive(id, generation)
     local validator = Engine.Validators[id]
     if validator then
         newValue = validator(newValue)
@@ -223,12 +420,14 @@ function Engine.set(id: number, newValue: any)
     local currentValue = Engine.Values[id]
     if currentValue ~= newValue then
         Engine.Values[id] = newValue
-        Engine.Changed[id] = true
+        markChanged(id)
         local signal = Engine.Signals[id]
         if signal then
             signal:Fire(newValue)
         end
-        Engine.flush()
+        if batchDepth == 0 and not isFlushing then
+            Engine.flush()
+        end
     end
 end
 
@@ -270,7 +469,7 @@ end
 ]=]
 function Engine.computed(callback: () -> any, options: { equals: ((any, any) -> boolean)? }?): () -> any
     local id = Engine.newState()
-    Engine.Computeds[id] = callback
+    Engine.Computeds[id] = callback :: (...any) -> any
     Engine.ComputedOpts[id] = options
     Engine.StateTypes[id] = "Computed"
     Engine.Initialized[id] = false
@@ -288,7 +487,7 @@ end
 ]=]
 function Engine.derived(callback: () -> any, options: { equals: ((any, any) -> boolean)? }?): ((() -> any), (any) -> ())
     local id = Engine.newState()
-    Engine.Computeds[id] = callback
+    Engine.Computeds[id] = callback :: (...any) -> any
     Engine.ComputedOpts[id] = options
     Engine.StateTypes[id] = "Derived"
     Engine.Initialized[id] = false
@@ -298,14 +497,20 @@ function Engine.derived(callback: () -> any, options: { equals: ((any, any) -> b
     Engine._flushComputed(id)
     
     local getter = Engine.createReadAccessor(id)
+    local generation = stateGenerations[id]
     local setter = function(newValue: any)
+        assertAlive(id, generation)
         if Engine.Values[id] ~= newValue then
             Engine.Values[id] = newValue
             Engine.Overrides[id] = true
             Engine.Initialized[id] = true
+            markChanged(id)
             local signal = Engine.Signals[id]
             if signal then
                 signal:Fire(newValue)
+            end
+            if batchDepth == 0 and not isFlushing then
+                Engine.flush()
             end
         end
     end
@@ -326,13 +531,19 @@ function Engine.reducer(reducerFn: (any, any) -> any, initialState: any): ((() -
     Engine.Signals[id] = Signal.new()
     
     local getter = Engine.createReadAccessor(id)
+    local generation = stateGenerations[id]
     local dispatch = function(action: any)
+        assertAlive(id, generation)
         local newValue = reducerFn(Engine.Values[id], action)
         if Engine.Values[id] ~= newValue then
             Engine.Values[id] = newValue
+            markChanged(id)
             local signal = Engine.Signals[id]
             if signal then
                 signal:Fire(newValue)
+            end
+            if batchDepth == 0 and not isFlushing then
+                Engine.flush()
             end
         end
     end
@@ -349,17 +560,17 @@ function Engine.async(asyncFn: () -> any): () -> any
     Engine.Values[id] = { Status = "Pending", Value = nil, Error = nil }
     Engine.StateTypes[id] = "Async"
     Engine.Signals[id] = Signal.new()
+    local generation = stateGenerations[id]
     
     Engine.Threads[id] = task.spawn(function()
         local success, result = pcall(asyncFn)
-        if success then
-            Engine.Values[id] = { Status = "Resolved", Value = result, Error = nil }
-        else
-            Engine.Values[id] = { Status = "Rejected", Value = nil, Error = result }
+        if not Engine.isAlive(id, generation) then
+            return
         end
-        local signal = Engine.Signals[id]
-        if signal then
-            signal:Fire(Engine.Values[id])
+        if success then
+            Engine.set(id, { Status = "Resolved", Value = result, Error = nil }, generation)
+        else
+            Engine.set(id, { Status = "Rejected", Value = nil, Error = result }, generation)
         end
     end)
     
@@ -379,14 +590,33 @@ function Engine._flushComputed(id: number)
     end
     if not Engine.Pending[id] and Engine.Initialized[id] then return end
     Engine.Pending[id] = false
+	Debug.Track("ComputedEvaluations")
     
     local callback = Engine.Computeds[id]
     local oldVal = Engine.Values[id]
-    
+    local wasInitialized = Engine.Initialized[id] == true
+
+    if evaluatingComputeds[id] then
+        error(`Weave: cyclic computed dependency detected at state {id}`, 2)
+    end
+    evaluatingComputeds[id] = true
     Engine.pushObserver(id)
-    local newVal = callback()
+    local evaluation = table.pack(pcall(callback))
     Engine.popObserver()
-    
+    evaluatingComputeds[id] = nil
+
+    if not evaluation[1] then
+        local pendingSources = scratchSources[id]
+        local pendingSet = scratchSourceSets[id]
+        if pendingSources then table.clear(pendingSources) end
+        if pendingSet then table.clear(pendingSet) end
+        Engine.Pending[id] = true
+        error(evaluation[2], 2)
+    end
+
+    commitDependencies(id)
+    local newVal = evaluation[2]
+
     local isChanged = false
     if not Engine.Initialized[id] then
         isChanged = true
@@ -403,10 +633,12 @@ function Engine._flushComputed(id: number)
     if isChanged then
         Engine.Values[id] = newVal
         Engine.Initialized[id] = true
-        Engine.Changed[id] = true
-        local signal = Engine.Signals[id]
-        if signal then
-            signal:Fire(newVal)
+        if wasInitialized then
+            markChanged(id)
+            local signal = Engine.Signals[id]
+            if signal then
+                signal:Fire(newVal)
+            end
         end
     elseif not Engine.Initialized[id] then
         Engine.Initialized[id] = true
@@ -419,54 +651,144 @@ end
 	Flushes pending computed updates.
 ]=]
 function Engine.flush()
-    local function evaluateDependentComputeds(id: number)
-        local dependents = Engine.Dependencies[id]
-        if dependents then
-            for _, depId in dependents do
-                if Engine.Computeds[depId] then
-                    local oldVal = Engine.Values[depId]
-                    if Engine.StateTypes[depId] == "Derived" then
-                        Engine.Overrides[depId] = false
-                    end
-                    Engine.Pending[depId] = true
-                    Engine._flushComputed(depId)
-                    if oldVal ~= Engine.Values[depId] then
-                        evaluateDependentComputeds(depId)
+    if batchDepth > 0 or isFlushing or changedQueueCount == 0 then
+        return
+    end
+
+	isFlushing = true
+	Debug.Track("SchedulerFlushes")
+	local flushStartedAt = if Debug.Enabled then os.clock() else 0
+    local dirtyReadIndex = 1
+    local computedReadIndex = 1
+    local bindingReadIndex = 1
+	local computedEvaluations = 0
+
+    local function scheduleDependentTree(sourceId: number)
+        local stackCount = 1
+        traversalStack[1] = sourceId
+
+        while stackCount > 0 do
+            local currentId = traversalStack[stackCount]
+            traversalStack[stackCount] = nil
+            stackCount -= 1
+
+            local dependents = Engine.Dependencies[currentId]
+            if dependents then
+                for _, dependentId in dependents do
+                    if Engine.Computeds[dependentId] and not scheduledComputeds[dependentId] then
+                        scheduledComputeds[dependentId] = true
+                        Engine.Pending[dependentId] = true
+                        if Engine.StateTypes[dependentId] == "Derived" then
+                            Engine.Overrides[dependentId] = false
+                        end
+
+                        pendingComputedCount += 1
+                        pendingComputedQueue[pendingComputedCount] = dependentId
+                        stackCount += 1
+                        traversalStack[stackCount] = dependentId
                     end
                 end
             end
         end
     end
-    
-    local currentlyChanged = {}
-    for k, v in pairs(Engine.Changed) do
-        currentlyChanged[k] = v
-    end
-    for stateId, isChanged in pairs(currentlyChanged) do
-        if isChanged then
-            evaluateDependentComputeds(stateId)
-        end
-    end
-    
-    for stateId, isChanged in pairs(Engine.Changed) do
-        if isChanged then
-            local val = Engine.Values[stateId]
-            local bindings = Engine.Bindings[stateId]
-            if bindings then
-                for _, bind in bindings do
-                    (bind.instance :: any)[bind.prop] = val
+
+    local ok, flushError = pcall(function()
+        while true do
+            -- Mark the complete affected subgraph before evaluation. This lets
+            -- Engine.get lazily resolve upstream computeds in dependency order.
+            while dirtyReadIndex <= changedQueueCount do
+                scheduleDependentTree(changedQueue[dirtyReadIndex])
+                dirtyReadIndex += 1
+            end
+
+            while computedReadIndex <= pendingComputedCount do
+                local computedId = pendingComputedQueue[computedReadIndex]
+                computedReadIndex += 1
+                scheduledComputeds[computedId] = nil
+                if Engine.Computeds[computedId] and Engine.Pending[computedId] then
+					computedEvaluations += 1
+                    Engine._flushComputed(computedId)
                 end
             end
-            Engine.Changed[stateId] = nil
+
+            -- Computed evaluations can append changed IDs. Schedule their
+            -- dependents before applying bindings.
+            if dirtyReadIndex <= changedQueueCount then
+                continue
+            end
+
+            while bindingReadIndex <= changedQueueCount do
+                local stateId = changedQueue[bindingReadIndex]
+                bindingReadIndex += 1
+                if Engine.Changed[stateId] then
+                    Engine.Changed[stateId] = nil
+                    local bindings = Engine.Bindings[stateId]
+                    if bindings then
+                        local value = Engine.Values[stateId]
+                        for _, binding in bindings do
+                            (binding.instance :: any)[binding.prop] = value
+                        end
+                    end
+                end
+            end
+
+            if dirtyReadIndex > changedQueueCount
+                and computedReadIndex > pendingComputedCount
+                and bindingReadIndex > changedQueueCount
+            then
+                break
+            end
         end
+    end)
+
+    if not ok then
+        for index = 1, pendingComputedCount do
+            scheduledComputeds[pendingComputedQueue[index]] = nil
+        end
+        table.clear(pendingComputedQueue)
+        table.clear(traversalStack)
+        pendingComputedCount = 0
+        isFlushing = false
+        error(flushError, 2)
     end
+
+	local statesFlushed = changedQueueCount
+	if Debug.Enabled then
+		local flushMs = (os.clock() - flushStartedAt) * 1000
+		if flushMs >= Debug.SlowFlushThreshold then
+			local stats = {
+				flushMs = flushMs,
+				statesFlushed = statesFlushed,
+				iterations = computedEvaluations,
+			}
+			warn(string.format(
+				"[Weave] Slow reactive flush: %.2fms (%d states, %d computed evaluations)",
+				flushMs,
+				statesFlushed,
+				computedEvaluations
+			))
+			if Debug.OnSlowFlush then
+				local callbackSuccess, callbackError = pcall(Debug.OnSlowFlush, stats)
+				if not callbackSuccess then
+					warn("[Weave] Debug.OnSlowFlush failed: " .. tostring(callbackError))
+				end
+			end
+		end
+	end
+
+	table.clear(changedQueue)
+    table.clear(pendingComputedQueue)
+    table.clear(traversalStack)
+    changedQueueCount = 0
+    pendingComputedCount = 0
+    isFlushing = false
 end
 
 -- ━━ 9. Cleanup ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 --[=[
 	Destroys the object and releases resources.
-	@param accessorOrId State accessor or internal id.
+	@param accessorOrId State accessor or wrapper.
 ]=]
 function Engine.destroy(accessorOrId: any)
     local id = Engine.resolveId(accessorOrId)
@@ -483,10 +805,37 @@ function Engine.destroy(accessorOrId: any)
         Engine.Signals[id] = nil
     end
     
+    local sources = Engine.Sources[id]
+    if sources then
+        for _, sourceId in sources do
+            removeDependent(sourceId, id)
+        end
+    end
+
+    local dependents = Engine.Dependencies[id]
+    if dependents then
+        for _, dependentId in dependents do
+            local dependentSources = Engine.Sources[dependentId]
+            local dependentSet = sourceSets[dependentId]
+            local sourceIndex = dependentSet and dependentSet[id]
+            if dependentSources and dependentSet and sourceIndex then
+                local lastIndex = #dependentSources
+                local lastSourceId = dependentSources[lastIndex]
+                dependentSources[sourceIndex] = lastSourceId
+                dependentSources[lastIndex] = nil
+                if sourceIndex ~= lastIndex then
+                    dependentSet[lastSourceId] = sourceIndex
+                end
+                dependentSet[id] = nil
+            end
+        end
+    end
+
     Engine.Values[id] = nil
     Engine.Changed[id] = nil
     Engine.Bindings[id] = nil
     Engine.Dependencies[id] = nil
+    Engine.Sources[id] = nil
     Engine.Computeds[id] = nil
     Engine.ComputedOpts[id] = nil
     Engine.Initialized[id] = nil
@@ -495,15 +844,16 @@ function Engine.destroy(accessorOrId: any)
     Engine.StateTypes[id] = nil
     Engine.Overrides[id] = nil
     Engine.Reducers[id] = nil
-    
-    for sourceId, deps in pairs(Engine.Dependencies) do
-        local idx = table.find(deps, id)
-        if idx then
-            table.remove(deps, idx)
-        end
-    end
-    
-    table.insert(freeIds, id)
+
+    dependentPositions[id] = nil
+    sourceSets[id] = nil
+    scratchSources[id] = nil
+    scratchSourceSets[id] = nil
+    scheduledComputeds[id] = nil
+    evaluatingComputeds[id] = nil
+
+    stateGenerations[id] = (stateGenerations[id] or 0) + 1
+    freeIds[#freeIds + 1] = id
 end
 
 --[=[

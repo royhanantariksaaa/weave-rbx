@@ -73,6 +73,7 @@ local initialisedPool = false
 local function springUpdate(pool, dt)
 	dt = math.min(dt, 0.1)
 	Debug.Track("SpringUpdates")
+	Engine.beginBatch()
 	for i = pool.count, 1, -1 do
 		local spring = pool.list[i]
 		if not spring._isAwake then
@@ -120,14 +121,14 @@ local function springUpdate(pool, dt)
 			local newValue = recompose(channels, spring._kind)
 			if newValue ~= spring._value then
 				spring._value = newValue
-				Engine.Values[spring._id] = newValue
-				spring._changed:Fire(newValue)
+				Engine.set(spring._id, newValue, spring._generation)
 			end
 		end
 	end
+	Engine.endBatch()
 end
 
-local Spring = setmetatable({}, { __index = AnimationState })
+local Spring = {}
 Spring.__index = Spring
 Spring.Type = "WeaveSpring"
 
@@ -174,8 +175,7 @@ function Spring:_doAwake()
 		self._velocities = createZeroChannels(#targetChannels)
 		self._prevChannels = createZeroChannels(#targetChannels)
 		self._value = target
-		Engine.Values[self._id] = target
-		self._changed:Fire(target)
+		Engine.set(self._id, target, self._generation)
 		return
 	end
 	self._isAwake = true
@@ -192,7 +192,10 @@ end
 	Handles the _onBeforeDestroy operation for Spring.
 ]=]
 function Spring:_onBeforeDestroy()
-	if self._isAwake then self._isAwake = false end
+	self._isAwake = false
+	if springPool and self._poolIndex then
+		springPool:RemoveItem(self, "_poolIndex")
+	end
 end
 
 --[=[
@@ -212,6 +215,8 @@ function Spring:SetDamping(damping: number)
 	self._damping = damping
 	if not self._isAwake then self:Awake() end
 end
+
+AnimationState.Compose(Spring)
 
 return function<T>(targetAccessor, speed: number?, damping: number?): Types.Spring<T>
 	return Spring.new(targetAccessor, speed, damping)

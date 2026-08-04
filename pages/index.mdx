@@ -1,0 +1,97 @@
+---
+title: Weave Handbook
+description: Learn scoped reactive Roblox UI through guided chapters, dependency experiments, and exact API reference.
+hide_table_of_contents: true
+---
+
+import { LibraryHome } from "@site/src/components/docs/library-home"
+
+<LibraryHome
+  name="Weave"
+  strapline="Reactive Roblox interfaces with ownership built into every update."
+  introduction="Learn how values become dependencies, dependencies become focused UI updates, and one scope gives the entire graph a predictable lifetime."
+  demoMotion="/tutorials/weave-reactive-counter.gif"
+  demoStill="/tutorials/weave-reactive-counter.png"
+  demoDescription="One source write updating derived state and only the affected Roblox UI bindings."
+  project={{
+    eyebrow: "Complete game track / Layer 3 of 4",
+    title: "Build Crystal Run's reactive HUD.",
+    description: "Render authoritative phase, timer, score, progress, lifetime totals, and confirmed pickup feedback without manual redraw code.",
+    href: "/docs/project-crystal-run",
+    action: "Build the HUD",
+  }}
+  routeTitle="From owned state to a reactive interface"
+  routeDescription="Build the dependency graph in layers, then watch Weave settle only the work that changed."
+  routes={[
+    {
+      number: "01",
+      label: "Read",
+      title: "Think in scopes",
+      description: "Treat ownership as the boundary around state, UI, effects, and cleanup.",
+      href: "/docs/intro",
+    },
+    {
+      number: "02",
+      label: "Build",
+      title: "Mount a reactive view",
+      description: "Create a Value, Computed state, property binding, and event.",
+      href: "/docs/getting-started",
+    },
+    {
+      number: "03",
+      label: "Tutorial",
+      title: "Build the complete counter",
+      description: "Connect dependency propagation to real Roblox Instances.",
+      href: "/docs/tutorial-reactive-counter",
+    },
+    {
+      number: "04",
+      label: "Practice",
+      title: "Probe the graph",
+      description: "Compare individual writes with batched settlement in the live lab.",
+      href: "/docs/playground",
+    },
+  ]}
+  modelTitle="Reads form edges; writes move through them"
+  modelDescription="Weave tracks which derived nodes and bindings read each source, then updates only the affected branch under one scope."
+  modelSteps={[
+    {
+      eyebrow: "Source",
+      title: "Write owned state",
+      description: "A Value records the new fact and invalidates dependents that previously read it.",
+    },
+    {
+      eyebrow: "Derive",
+      title: "Recompute focused nodes",
+      description: "Computed state refreshes lazily and rebuilds dependency edges from the reads it performs.",
+    },
+    {
+      eyebrow: "Render",
+      title: "Patch affected properties",
+      description: "Bindings update the Roblox Instances they own, while unrelated UI remains untouched.",
+    },
+  ]}
+  threads={[
+    {
+      icon: "identity",
+      title: "Scopes and state",
+      description: "Values, computed nodes, reducers, effects, batching, and cleanup.",
+      href: "/docs/scopes-and-state",
+      action: "Learn reactivity",
+    },
+    {
+      icon: "code",
+      title: "Rendering",
+      description: "Instances, property bindings, children, collections, and portals.",
+      href: "/docs/rendering",
+      action: "Build interfaces",
+    },
+    {
+      icon: "book",
+      title: "API reference",
+      description: "Generated root, Scope, State, animation, context, and utility signatures.",
+      href: "/api/Weave",
+      action: "Browse the API",
+    },
+  ]}
+/>

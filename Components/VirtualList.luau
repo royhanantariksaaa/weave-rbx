@@ -35,7 +35,7 @@ return function(Scope, props)
 		local allItems, range = use(itemsState) or {}, use(visibleRange)
 		local result = {}
 		for i = range.startIdx, math.min(#allItems, range.endIdx) do
-			table.insert(result, { item = allItems[i], index = i })
+			result[i] = allItems[i]
 		end
 		return result
 	end)
@@ -47,10 +47,10 @@ return function(Scope, props)
 	newProps[Reconciler.OnChange("CanvasPosition")] = function(pos) canvasPos:Set(pos) end
 	newProps[Reconciler.OnChange("AbsoluteWindowSize")] = function(size) windowSize:Set(size) end
 	newProps[Reconciler.Children] = {
-		Scope.ForValues(visibleItems, function(s, data)
-			local el = renderItem(s, data.item, data.index)
+		Scope.ForKeys(visibleItems, function(s, index, item)
+			local el = renderItem(s, item, index)
 			if el then
-				el.Position = UDim2.new(0, 0, 0, (data.index - 1) * itemHeight)
+				el.Position = UDim2.new(0, 0, 0, (index - 1) * itemHeight)
 				el.Size = UDim2.new(1, 0, 0, itemHeight)
 			end
 			return el

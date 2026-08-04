@@ -12,6 +12,7 @@
 ]=]
 
 local Engine = require(script.Parent.Parent.Core.Engine)
+local Shared = require(script.Parent._shared)
 
 return function(_Scope, _Signal, _Value, _Computed)
 	return function(self, state, options)
@@ -24,9 +25,9 @@ return function(_Scope, _Signal, _Value, _Computed)
 		local suppressRecord = false
 
 		-- Track changes
-		local lastVal = type(state) == "function" and state() or state
+		local lastVal = Shared.peek(state)
 		self.effect(function()
-			local newVal = type(state) == "function" and state() or state
+			local newVal = Shared.read(state)
 			if suppressRecord then return end
 			if newVal == lastVal then return end
 			
@@ -45,7 +46,7 @@ return function(_Scope, _Signal, _Value, _Computed)
 		local function applyHistory(sourceStack, targetStack)
 			if #sourceStack == 0 then return end
 			local val = table.remove(sourceStack)
-			local current = type(state) == "function" and state() or state
+			local current = Shared.peek(state)
 			table.insert(targetStack, current)
 			
 			suppressRecord = true
@@ -53,6 +54,8 @@ return function(_Scope, _Signal, _Value, _Computed)
 			local id = Engine.resolveId(state)
 			if id then
 				Engine.set(id, val)
+			elseif type(state) == "table" and type(state.Set) == "function" then
+				state:Set(val)
 			end
 			
 			lastVal = val

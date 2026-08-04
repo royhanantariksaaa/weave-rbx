@@ -12,6 +12,7 @@
 ]=]
 
 local RunService = game:GetService("RunService")
+local Shared = require(script.Parent._shared)
 
 return function(_Scope, _Signal)
 	return function(self, anchorState, options)
@@ -22,16 +23,16 @@ return function(_Scope, _Signal)
 		local getPos, setPos = self.value(UDim2.new())
 		local getVis, setVis = self.value(false)
 
-		local getFloatRef, setFloatRef = self.ref()
+		local floatRef = self.Ref()
 
 		local function updatePosition()
-			local anchor = type(anchorState) == "function" and anchorState() or anchorState
+			local anchor = Shared.peek(anchorState)
 			if not anchor or typeof(anchor) ~= "Instance" or not anchor:IsA("GuiObject") then
 				setVis(false)
 				return
 			end
 
-			local floatInst = getFloatRef()
+			local floatInst = floatRef:Get()
 			if not floatInst or typeof(floatInst) ~= "Instance" or not floatInst:IsA("GuiObject") then
 				setVis(false)
 				return
@@ -89,7 +90,7 @@ return function(_Scope, _Signal)
 		return {
 			Position = getPos,
 			Visible = getVis,
-			FloatRef = setFloatRef,
+			FloatRef = floatRef,
 		}
 	end
 end

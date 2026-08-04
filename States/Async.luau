@@ -3,12 +3,12 @@
 	@within Weave
 	@module Async
 
-	Creates an Async entity and returns a getter closure. The getter yields
-	to the async function's result; use with `Suspense` to render fallback
-	content while pending.
+	Creates an Async entity and returns a getter closure containing
+	`{ Status, Value, Error }`. The producer runs in its own task and may yield;
+	use the state with `Suspense` to render fallback content while pending.
 
-	@param asyncFn () -> any -- function returning a Promise or yieldable result
-	@return () -> any -- getter that resolves to the async result
+	@param asyncFn () -> any -- producer whose return value is stored on resolution
+	@return () -> any -- getter for the async status record
 ]=]
 local Engine = require(script.Parent.Parent.Core.Engine)
 

@@ -12,7 +12,7 @@
 	@return { State, Dispatch, Select } -- the store controller
 ]=]
 
-local Engine = require(script.Parent.Parent.Core.Engine)
+local Shared = require(script.Parent._shared)
 
 return function(_Scope, _Signal, _Value, _Computed)
 	return function(self, initialState, options)
@@ -31,7 +31,7 @@ return function(_Scope, _Signal, _Value, _Computed)
 			end
 
 			-- Shallow-clone current state to prevent mutation of the live value
-			local currentState = Engine.peek(getState) or getState()
+			local currentState = Shared.peek(getState)
 			local stateCopy = type(currentState) == "table" and table.clone(currentState) or currentState
 
 			local newState = actionFn(stateCopy, ...)
@@ -57,10 +57,10 @@ return function(_Scope, _Signal, _Value, _Computed)
 		-- Select: creates a derived computed that only updates when the slice changes
 		local function selectFn(selectorFn, equalsFn)
 			local eq = equalsFn or function(a, b) return a == b end
-			local lastResult = selectorFn(Engine.peek(getState) or getState())
+			local lastResult = selectorFn(Shared.peek(getState))
 
 			return self.computed(function()
-				local fullState = type(getState) == "function" and getState() or getState
+				local fullState = Shared.read(getState)
 				local result = selectorFn(fullState)
 
 				if eq(result, lastResult) then

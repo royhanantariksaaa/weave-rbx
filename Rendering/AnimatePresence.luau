@@ -16,6 +16,7 @@
 local Shared = require(script.Parent._shared)
 local Helpers = require(script.Parent.Parent.Core.Helpers)
 local WeaveTypes = require(script.Parent.Parent.Types)
+local Engine = require(script.Parent.Parent.Core.Engine)
 
 return function(Scope, Signal)
 	return function(self, sourceState, renderFunc, options)
@@ -70,7 +71,13 @@ return function(Scope, Signal)
 			if not presDef._troveMap[key] then
 				-- New item
 				local childScope = Scope.new(self)
-				local inst = renderFunc(childScope, key, index)
+				Engine.pushScope(childScope)
+				local success, inst = pcall(renderFunc, childScope, key, index)
+				Engine.popScope()
+				if not success then
+					childScope:Destroy()
+					error(inst, 0)
+				end
 				presDef._instanceMap[key] = inst
 				presDef._troveMap[key] = childScope._trove
 			end

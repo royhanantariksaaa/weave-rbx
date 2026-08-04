@@ -17,33 +17,35 @@ local Engine = require(script.Parent.Parent.Core.Engine)
 return function(Scope, _Signal)
 	return function(self, builderFunc, fallbackFunc)
 		local childScope = Scope.new(self)
-		
-		local success, result = pcall(function()
-			Engine.pushScope(childScope)
-			local res = builderFunc(childScope)
-			Engine.popScope()
-			return res
-		end)
 
-		if not success then
-			warn("Weave ErrorBoundary caught an error: " .. tostring(result))
-			childScope._trove:Destroy()
+		Engine.pushScope(childScope)
+		local success, result = pcall(builderFunc, childScope)
+		Engine.popScope()
 
-			if fallbackFunc then
-				childScope = Scope.new(self)
-				local fallbackSuccess, fallbackResult = pcall(function()
-					Engine.pushScope(childScope)
-					local res = fallbackFunc(childScope, result)
-					Engine.popScope()
-					return res
-				end)
-				result = fallbackSuccess and fallbackResult or nil
-			else
-				result = nil
-			end
+		if success then
+			self._trove:Add(childScope._trove)
+			return result
 		end
 
-		self._trove:Add(childScope._trove)
-		return result
+		warn("Weave ErrorBoundary caught an error: " .. tostring(result))
+		childScope._trove:Destroy()
+
+		if not fallbackFunc then
+			return nil
+		end
+
+		local fallbackScope = Scope.new(self)
+		Engine.pushScope(fallbackScope)
+		local fallbackSuccess, fallbackResult = pcall(fallbackFunc, fallbackScope, result)
+		Engine.popScope()
+
+		if not fallbackSuccess then
+			fallbackScope._trove:Destroy()
+			warn("Weave ErrorBoundary fallback failed: " .. tostring(fallbackResult))
+			return nil
+		end
+
+		self._trove:Add(fallbackScope._trove)
+		return fallbackResult
 	end
 end
